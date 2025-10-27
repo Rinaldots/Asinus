@@ -1,0 +1,83 @@
+# RTABMap Optimized Configuration for Asinus Robot
+# Only subscribes to sensors that are actually available
+
+/**:
+  ros__parameters:
+    # General settings
+    use_sim_time: true
+    frame_id: "base_link"
+    map_frame_id: "map"
+    odom_frame_id: "odom"
+    publish_tf: true
+    tf_delay: 0.05
+    tf_tolerance: 0.1
+
+    # Subscription settings - Only enable sensors we actually have
+    subscribe_rgbd: true
+    subscribe_scan: true
+    subscribe_odom: true
+    subscribe_gps: true
+
+    # Synchronization
+    approx_sync: true
+    sync_queue_size: 10
+    wait_for_transform: 0.2
+    
+    # Ensure proper initialization for SLAM
+    RGBD/CreateOccupancyGrid: "true"
+
+    # Transform settings
+    odom_tf_linear_variance: 0.001
+    odom_tf_angular_variance: 0.001
+
+    # SLAM parameters (strings as required by RTABMap)
+    RGBD/NeighborLinkRefining: "true"
+    RGBD/ProximityBySpace: "true"
+    RGBD/ProximityByTime: "false"
+    RGBD/ProximityPathMaxNeighbors: "10"
+    RGBD/OptimizeFromGraphEnd: "false"
+    RGBD/LocalRadius: "5"
+    
+    # Ensure proper SLAM behavior
+    RGBD/LinearUpdate: "0.1"
+    RGBD/AngularUpdate: "0.1"
+
+    # Registration strategy
+    Reg/Strategy: "1"  # 0=Visual, 1=ICP, 2=Visual+ICP
+    Reg/Force3DoF: "true"
+    Optimizer/Slam2D: "true"
+
+    # Visual parameters
+    Vis/MinInliers: "5"
+
+    # ICP parameters
+    Icp/CorrespondenceRatio: "0.2"
+    Icp/PM: "false"
+    Icp/PointToPlane: "false"
+    Icp/MaxCorrespondenceDistance: "0.15"
+    Icp/VoxelSize: "0.05"
+
+    # Grid/Map parameters
+    Grid/FromDepth: "false"
+    Grid/Sensor: "1"  # 0=laser scan, 1=depth image
+
+    # Memory management
+    Mem/STMSize: "30"
+    Mem/IncrementalMemory: "true"
+    Mem/InitWMWithAllNodes: "false"
+    
+    # Localization mode
+    Mem/NotLinkedNodesKept: "false"
+    
+    # Optimize graph more frequently to ensure map transforms are published
+    RGBD/OptimizeMaxError: "3"
+    Optimizer/Strategy: "2"  # g2o optimization
+    Optimizer/Iterations: "20"
+
+    # Database
+    Db/TargetVersion: ""
+    
+    # Ensure map publishing
+    Grid/Published: "true"
+    Grid/MaxObstacleHeight: "2.0"
+    Grid/MaxGroundHeight: "0.0"

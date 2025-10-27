@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<robot name="sensor_imu" xmlns:xacro="http://www.ros.org/wiki/xacro">
+ 
+  <!-- Define pi constant -->
+  <xacro:property name="M_PI" value="3.14159265359"/>
+  <xacro:property name="imu_px" value="0.0" />
+  <xacro:property name="imu_py" value="0.0" />
+  <xacro:property name="imu_pz" value="0.0" />
+  <xacro:property name="imu_or" value="0" />
+  <xacro:property name="imu_op" value="0" />
+  <xacro:property name="imu_oy" value="0" />
+  
+  <!-- IMU for simulation -->
+  <xacro:macro name="asinus_imu" params="namespace:=''">
+    <gazebo reference="imu_link">
+      <!-- IMU Sensor -->
+      <sensor name="imu_sensor" type="imu">
+          <always_on>1</always_on>
+          <update_rate>50</update_rate>
+          <topic>imu</topic>
+          <visualize>true</visualize>
+          <gz_frame_id>imu_link</gz_frame_id>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+  
+  <!-- IMU Sensor Macro -->
+  <xacro:macro name="sensor_imu" params="parent namespace:=''">
+    <joint name="imu_joint" type="fixed">
+      <origin xyz="${imu_px} ${imu_py} ${imu_pz}" rpy="${imu_or} ${imu_op} ${imu_oy}"/>
+      <parent link="${parent}"/>
+      <child link="imu_link" />
+    </joint>
+    
+    <link name="imu_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.02 0.015 0.005"/>
+        </geometry>
+        <material name="imu_material">
+          <color rgba="0.1 0.1 0.8 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.02 0.015 0.005"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- IMU sensor for simulation -->
+    <xacro:asinus_imu namespace="${namespace}"/>
+  </xacro:macro>
+</robot>

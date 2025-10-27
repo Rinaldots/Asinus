@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<robot name="sensor_kinect" xmlns:xacro="http://ros.org/wiki/xacro">
+ 
+  <!-- Define pi constant -->
+  <xacro:property name="M_PI" value="3.14159265359"/>
+  <xacro:property name="cam_px" value="0.0" />
+  <xacro:property name="cam_py" value="0.0" />
+	<xacro:property name="cam_pz" value="0.0" />
+	<xacro:property name="cam_or" value="0" />
+	<xacro:property name="cam_op" value="0" />
+	<xacro:property name="cam_oy" value="0" />
+  <!-- Microsoft Kinect / ASUS Xtion PRO Live for simulation -->
+  <xacro:macro name="asinus_kinect" params="namespace:=''">
+    <gazebo reference="camera_link">
+      <!-- RGB Camera Sensor -->
+      <sensor name="rgb_camera" type="camera">
+        <camera>
+          <horizontal_fov>${60.0*M_PI/180.0}</horizontal_fov>
+          <image>
+            <width>640</width>
+            <height>480</height>
+          </image>
+          <clip>
+            <near>0.05</near>
+            <far>100.0</far>
+          </clip>
+        </camera>
+        <always_on>true</always_on>
+        <update_rate>20.0</update_rate>
+        <visualize>true</visualize>
+        <topic>kinect_rgb/image</topic>
+        <gz_frame_id>camera_rgb_optical_frame</gz_frame_id>
+        <enable_metrics>true</enable_metrics>
+      </sensor>
+    </gazebo>
+    <gazebo reference="camera_depth_frame">
+      <!-- Depth Camera Sensor -->
+      <sensor name="depth_camera" type="depth">
+        <update_rate>20.0</update_rate>
+        <topic>kinect_depth/image</topic>
+        <gz_frame_id>camera_depth_optical_frame</gz_frame_id>
+        <horizontal_fov>${60.0*M_PI/180.0}</horizontal_fov>
+        <enable_metrics>true</enable_metrics>
+        <depth>
+          <clip>
+            <near>0.05</near>
+            <far>8.0</far>
+          </clip>
+          <image>
+            <format>R32F</format>
+            <width>640</width>
+            <height>480</height>
+          </image>
+        </depth>
+      </sensor>
+    </gazebo>
+  </xacro:macro>
+  
+  
+  <!-- Parameterised in part by the values in asinus_properties.urdf.xacro -->
+  <xacro:macro name="sensor_kinect" params="parent namespace:=''">
+    <joint name="camera_rgb_joint" type="fixed">
+      <origin xyz="${cam_px} ${cam_py} ${cam_pz}" rpy="${cam_or} ${cam_op} ${cam_oy}"/>
+      <parent link="${parent}"/>
+      <child link="camera_rgb_frame" />
+    </joint>
+    <link name="camera_rgb_frame"/>
+
+    <joint name="camera_rgb_optical_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="${-M_PI/2} 0 ${3*M_PI/2}"/>
+      <parent link="camera_rgb_frame" />
+      <child link="camera_rgb_optical_frame" />
+    </joint>
+    <link name="camera_rgb_optical_frame"/>
+
+    <joint name="camera_joint" type="fixed">
+      <origin xyz="-0.031 ${-cam_py} -0.016" rpy="0 0 0"/>
+      <parent link="camera_rgb_frame"/>
+      <child link="camera_link"/>
+    </joint>  
+    <link name="camera_link">
+  	  <collision>
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  	    <geometry>
+  	      <box size="0.07271 0.27794 0.073"/>
+  	    </geometry>
+  	  </collision>
+      <inertial>
+        <mass value="0.564" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.003881243" ixy="0.0" ixz="0.0"
+                 iyy="0.000498940" iyz="0.0"
+                 izz="0.003879257" />
+      </inertial>
+    </link>
+
+    <joint name="camera_depth_joint" type="fixed">
+      <origin xyz="${cam_px} ${2 * -cam_py} ${cam_pz}" rpy="${cam_or} ${cam_op} ${cam_oy}"/>
+      <parent link="camera_rgb_frame" />
+      <child link="camera_depth_frame" />
+    </joint>
+    <link name="camera_depth_frame"/>
+
+    <joint name="camera_depth_optical_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="${-M_PI/2} 0 ${3*M_PI/2}" />
+      <parent link="camera_depth_frame" />
+      <child link="camera_depth_optical_frame" />
+    </joint>
+    <link name="camera_depth_optical_frame"/>
+	
+	<!-- Kinect sensor for simulation -->
+	<xacro:asinus_kinect namespace="${namespace}"/>
+  </xacro:macro>
+</robot>

@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<robot name="sensor_lidar" xmlns:xacro="http://www.ros.org/wiki/xacro">
+ 
+  <!-- Define pi constant -->
+  <xacro:property name="M_PI" value="3.14159265359"/>
+  <xacro:property name="lidar_px" value="0.0" />
+  <xacro:property name="lidar_py" value="0.0" />
+  <xacro:property name="lidar_pz" value="0.0" />
+  <xacro:property name="lidar_or" value="0" />
+  <xacro:property name="lidar_op" value="0" />
+  <xacro:property name="lidar_oy" value="0" />
+  
+  <!-- LIDAR for simulation -->
+  <xacro:macro name="asinus_lidar" params="namespace:=''">
+    <gazebo reference="lidar_link">
+      <!-- LIDAR Sensor -->
+      <sensor name='gpu_lidar' type='gpu_lidar'>
+          <topic>/scan</topic>
+          <gz_frame_id>lidar_link</gz_frame_id>
+          <update_rate>10</update_rate>
+          <enable_metrics>true</enable_metrics>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>360</samples>
+                <resolution>1</resolution>
+                <min_angle>-${M_PI}</min_angle>
+                <max_angle>${M_PI}</max_angle>
+              </horizontal>
+              <vertical>
+                <samples>1</samples>
+                <resolution>0.01</resolution>
+                <min_angle>0</min_angle>
+                <max_angle>0</max_angle>
+              </vertical>
+            </scan>
+            <range>
+              <min>0.12</min>
+              <max>8.0</max>
+              <resolution>0.01</resolution>
+            </range>
+            <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.01</stddev>
+            </noise>
+          </ray>
+          <alwaysOn>1</alwaysOn>
+          <visualize>true</visualize>
+        </sensor>
+    </gazebo>
+  </xacro:macro>
+  
+  <!-- LIDAR Sensor Macro -->
+  <xacro:macro name="sensor_lidar" params="parent namespace:=''">
+    <joint name="lidar_joint" type="fixed">
+      <origin xyz="${lidar_px} ${lidar_py} ${lidar_pz}" rpy="${lidar_or} ${lidar_op} ${lidar_oy}"/>
+      <parent link="${parent}"/>
+      <child link="lidar_link" />
+    </joint>
+    
+    <link name="lidar_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.05" length="0.07"/>
+        </geometry>
+        <material name="lidar_material">
+          <color rgba="0.2 0.2 0.2 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.05" length="0.07"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.1" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.000166" ixy="0.0" ixz="0.0"
+                 iyy="0.000166" iyz="0.0"
+                 izz="0.000125" />
+      </inertial>
+    </link>
+
+    <!-- LIDAR sensor for simulation -->
+    <xacro:asinus_lidar namespace="${namespace}"/>
+  </xacro:macro>
+</robot>

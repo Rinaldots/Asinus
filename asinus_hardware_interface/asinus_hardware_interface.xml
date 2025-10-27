@@ -1,0 +1,9 @@
+<library path="asinus_hardware_interface">
+  <class name="asinus_hardware_interface/AsinusHardwareInterface"
+         type="asinus_hardware_interface::AsinusHardwareInterface"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+        The asinus motors hardware interface for ros2_control
+    </description>
+  </class>
+</library>

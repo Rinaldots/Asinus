@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="asinus_description">
+    <static>false</static>
+    <link name="base_link">
+      <visual name="base_visual">
+        <geometry>
+          <mesh>
+            <uri>model://asinus_description/meshes/asinus/frame.stl</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>

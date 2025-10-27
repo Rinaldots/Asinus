@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="asinus">
+
+  <xacro:property name="robot_name" value="asinus"/> 
+
+  <xacro:arg name="frame_prefix_arg" default=""/> 
+  <xacro:arg name="namespace" default=""/> 
+  <xacro:arg name="use_gazebo_ros_control" default="true"/>
+
+  <xacro:property name="processed_prefix" value="$(arg frame_prefix_arg)_" /> 
+  <xacro:property name="robot_namespace" value="/$(arg namespace)"/> 
+
+  <xacro:include filename="$(find asinus_gz)/urdf/include/sensors/kinect.urdf.xacro" />
+  <xacro:include filename="$(find asinus_gz)/urdf/include/sensors/gps.urdf.xacro" />
+  <xacro:include filename="$(find asinus_gz)/urdf/include/sensors/imu.urdf.xacro" />
+  <xacro:include filename="$(find asinus_gz)/urdf/include/sensors/lidar.urdf.xacro" />
+
+
+
+   <xacro:if value="$(arg use_gazebo_ros_control)">
+    <ros2_control name="GazeboSimSystem" type="system">
+    <hardware>
+      <plugin>ign_ros2_control/IgnitionSystem</plugin>
+    </hardware>
+    <joint name="fl_wheel_joint">
+      <command_interface name="velocity">
+        <param name="min">-3</param>
+        <param name="max">3</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="fr_wheel_joint">
+      <command_interface name="velocity">
+        <param name="min">-3</param>
+        <param name="max">3</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="br_wheel_joint">
+      <command_interface name="velocity">
+        <param name="min">-3</param>
+        <param name="max">3</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="bl_wheel_joint">
+      <command_interface name="velocity">
+        <param name="min">-3</param>
+        <param name="max">3</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+  <gazebo>
+    <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>$(find asinus_demo_bringup)/config/asinus_controllers.yaml</parameters>
+    </plugin>
+    <!-- Linear Battery Plugin -->
+    <!-- TODO calibration -->
+    <plugin filename="gz-sim-linearbatteryplugin-system"
+            name="gz::sim::systems::LinearBatteryPlugin">
+          <battery_name>linear_battery</battery_name>
+          <voltage>24.00</voltage>
+          <open_circuit_voltage_constant_coef>24.00</open_circuit_voltage_constant_coef>
+          <capacity>105.5</capacity>
+          <power_load>700.0</power_load>
+          <fix_issue_225>true</fix_issue_225>
+          <enable_recharge>true</enable_recharge>
+          <charging_time>3.0</charging_time>
+          <recharge_by_topic>true</recharge_by_topic>
+    </plugin>
+    <!-- IMU Sensor -->
+
+  </gazebo>
+  </xacro:if>
+
+    
+  <!-- Kinect Sensor -->
+  <xacro:sensor_kinect parent="rgb_cam" namespace="$(arg namespace)"/>
+  
+  <!-- GPS Sensor -->
+  <xacro:sensor_gps parent="lidar" namespace="$(arg namespace)"/>
+
+  <!-- IMU Sensor -->
+  <xacro:sensor_imu parent="imu" namespace="$(arg namespace)"/>
+  
+  <xacro:sensor_lidar parent="lidar" namespace="$(arg namespace)"/>
+  
+</robot>

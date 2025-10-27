@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
+
+    <!-- Chassis -->
+    <gazebo reference="base_link">
+        <material>Gazebo/Blue</material>
+    </gazebo>
+    
+    <!-- Motor Hubs -->
+    <gazebo reference="left_motor_hub">
+        <material>Gazebo/DarkGrey</material>
+    </gazebo>
+    <gazebo reference="right_motor_hub">
+        <material>Gazebo/DarkGrey</material>
+    </gazebo>
+    
+    <!-- Wheel Supports -->
+    <gazebo reference="left1_wheel_support">
+        <material>Gazebo/Black</material>
+    </gazebo>
+    <gazebo reference="right1_wheel_support">
+        <material>Gazebo/Black</material>
+    </gazebo>
+    <gazebo reference="left2_wheel_support">
+        <material>Gazebo/Black</material>
+    </gazebo>
+    <gazebo reference="right2_wheel_support">
+        <material>Gazebo/Black</material>
+    </gazebo>
+    
+    <!-- Wheel Support Ends -->
+    <gazebo reference="left1_wheel_support_end">
+        <material>Gazebo/Black</material>
+    </gazebo>
+    <gazebo reference="right1_wheel_support_end">
+        <material>Gazebo/Black</material>
+    </gazebo>
+    <gazebo reference="left2_wheel_support_end">
+        <material>Gazebo/Black</material>
+    </gazebo>
+    <gazebo reference="right2_wheel_support_end">
+        <material>Gazebo/Black</material>
+    </gazebo>
+    
+    <!-- Caster wheel -->
+    <gazebo reference="caster_rotation_link">
+        <material>Gazebo/White</material>
+    </gazebo>
+    <gazebo reference="caster_base_link">
+        <material>Gazebo/White</material>
+    </gazebo>
+    <gazebo reference="caster_wheel_link">
+        <material>Gazebo/DarkGrey</material>
+    </gazebo>
+    
+    <!-- Additional links -->
+    <gazebo reference="odom_link">
+        <material>Gazebo/Green</material>
+    </gazebo>
+    <gazebo reference="mpu_link">
+        <material>Gazebo/Red</material>
+    </gazebo>
+
+</robot>

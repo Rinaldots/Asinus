@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<robot name="sensor_gps" xmlns:xacro="http://www.ros.org/wiki/xacro">
+ 
+  <!-- Define pi constant -->
+  <xacro:property name="M_PI" value="3.14159265359"/>
+  <xacro:property name="gps_px" value="0.0" />
+  <xacro:property name="gps_py" value="0.0" />
+  <xacro:property name="gps_pz" value="0.05" />
+  <xacro:property name="gps_or" value="0" />
+  <xacro:property name="gps_op" value="0" />
+  <xacro:property name="gps_oy" value="0" />
+  
+  <!-- GPS NavSat for simulation -->
+  <xacro:macro name="asinus_gps" params="namespace:=''">
+    <gazebo reference="gps_link">
+      <!-- GPS Sensor -->
+      <gz_frame_id>gps_link</gz_frame_id>
+      <sensor name="navsat_sensor" type="navsat">
+          <always_on>1</always_on>
+          <update_rate>1</update_rate>
+          <topic>navsat</topic>
+        </sensor>
+    </gazebo>
+  </xacro:macro>
+  
+  <!-- GPS Sensor Macro -->
+  <xacro:macro name="sensor_gps" params="parent namespace:=''">
+    <joint name="gps_joint" type="fixed">
+      <origin xyz="${gps_px} ${gps_py} ${gps_pz}" rpy="${gps_or} ${gps_op} ${gps_oy}"/>
+      <parent link="${parent}"/>
+      <child link="gps_link" />
+    </joint>
+    
+    <link name="gps_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.01" length="0.02"/>
+        </geometry>
+        <material name="gps_material">
+          <color rgba="0.2 0.2 0.2 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.01" length="0.02"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.01" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.000001" ixy="0.0" ixz="0.0"
+                 iyy="0.000001" iyz="0.0"
+                 izz="0.000001" />
+      </inertial>
+    </link>
+
+    <!-- GPS sensor for simulation -->
+    <xacro:asinus_gps namespace="${namespace}"/>
+  </xacro:macro>
+</robot>

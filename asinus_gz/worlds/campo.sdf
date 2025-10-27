@@ -1,0 +1,995 @@
+<?xml version="1.0" ?>
+<!--
+  Example p        <engine>ogre2</engine>
+        <scene>scene</scene>
+        <ambient_light>0.4 0.4 0.4</ambient_light>
+        <background_color>0.8 0.8 0.8</background_color>
+        <camera_pose>-80 0 60 0 1.0 0</camera_pose>hing point cloud messages to ROS from Gazebo.
+  There are 2 RGBD cameras: one with custom plugin parameters and another one with default parameters.
+-->
+<sdf version="1.9">
+  <world name="ros_gz">
+    <physics name="1ms" type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+    
+    <!-- Spherical coordinates for GPS reference -->
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>-22.8567</latitude_deg>
+      <longitude_deg>-47.0589</longitude_deg>
+      <elevation>580.0</elevation>
+      <heading_deg>0.0</heading_deg>
+    </spherical_coordinates>
+    
+    <plugin
+      filename="ignition-gazebo-physics-system"
+      name="ignition::gazebo::systems::Physics">
+    </plugin>
+    <plugin
+      filename="ignition-gazebo-user-commands-system"
+      name="ignition::gazebo::systems::UserCommands">
+    </plugin>
+    <plugin
+      filename="ignition-gazebo-navsat-system"
+      name="ignition::gazebo::systems::NavSat">
+    </plugin>
+    <plugin
+      filename="ignition-gazebo-sensors-system"
+      name="ignition::gazebo::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin
+      filename="ignition-gazebo-imu-system"
+      name="gz::sim::systems::Imu">
+    </plugin>
+    <plugin
+      filename="ignition-gazebo-magnetometer-system"
+      name="gz::sim::systems::Magnetometer">
+    </plugin>
+    <plugin
+      filename="ignition-gazebo-scene-broadcaster-system"
+      name="ignition::gazebo::systems::SceneBroadcaster">
+    </plugin>
+    <plugin
+      filename="gz-sim-physics-system"
+      name="gz::sim::systems::Physics">
+    </plugin>
+    
+    
+    
+    <gui fullscreen="0">
+
+      <!-- 3D scene -->
+      <plugin filename="GzScene3D" name="3D View">
+        <ignition-gui>
+          <title>3D View</title>
+          <property type="bool" key="showTitleBar">false</property>
+          <property type="string" key="state">docked</property>
+        </ignition-gui>
+
+        <engine>ogre2</engine>
+        <scene>scene</scene>
+        <ambient_light>0.4 0.4 0.4</ambient_light>
+        <background_color>0.8 0.8 0.8</background_color>
+        <camera_pose>-8 0 8 0 0.8 0</camera_pose>
+      </plugin>
+
+      <!-- World control -->
+      <plugin filename="WorldControl" name="World control">
+        <ignition-gui>
+          <title>World control</title>
+          <property type="bool" key="showTitleBar">false</property>
+          <property type="bool" key="resizable">false</property>
+          <property type="double" key="height">72</property>
+          <property type="double" key="width">121</property>
+          <property type="double" key="z">1</property>
+
+          <property type="string" key="state">floating</property>
+          <anchors target="3D View">
+            <line own="left" target="left"/>
+            <line own="bottom" target="bottom"/>
+          </anchors>
+        </ignition-gui>
+
+        <play_pause>true</play_pause>
+        <step>true</step>
+        <start_paused>true</start_paused>
+        <service>/world/ros_gz/control</service>
+        <stats_topic>/world/ros_gz/stats</stats_topic>
+
+      </plugin>
+
+      <!-- World statistics -->
+      <plugin filename="WorldStats" name="World stats">
+        <ignition-gui>
+          <title>World stats</title>
+          <property type="bool" key="showTitleBar">false</property>
+          <property type="bool" key="resizable">false</property>
+          <property type="double" key="height">110</property>
+          <property type="double" key="width">290</property>
+          <property type="double" key="z">1</property>
+
+          <property type="string" key="state">floating</property>
+          <anchors target="3D View">
+            <line own="right" target="right"/>
+            <line own="bottom" target="bottom"/>
+          </anchors>
+        </ignition-gui>
+
+        <sim_time>true</sim_time>
+        <real_time>true</real_time>
+        <real_time_factor>true</real_time_factor>
+        <iterations>true</iterations>
+        <topic>/world/ros_gz/stats</topic>
+      </plugin>
+
+      <plugin filename="ImageDisplay" name="Image Display">
+        <ignition-gui>
+          <title>Default: depth</title>
+          <property key="width" type="double">400</property>
+          <property key="height" type="double">315</property>
+          <property key="state" type="string">floating</property>
+          <anchors target="3D View">
+            <line own="left" target="left"/>
+            <line own="bottom" target="bottom"/>
+          </anchors>
+        </ignition-gui>
+        <topic>kinect_depth/image</topic>
+        <topic_picker>false</topic_picker>
+      </plugin>
+
+      <plugin filename="ImageDisplay" name="Image Display">
+        <ignition-gui>
+          <title>Default: RGB</title>
+          <property key="width" type="double">400</property>
+          <property key="height" type="double">315</property>
+          <property key="state" type="string">floating</property>
+          <anchors target="3D View">
+            <line own="right" target="right"/>
+            <line own="bottom" target="bottom"/>
+          </anchors>
+        </ignition-gui>
+        <topic>kinect_rgb/image</topic>
+        <topic_picker>false</topic_picker>
+      </plugin>
+    </gui>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <!-- FIFA Standard Football Field -->
+    <model name="FIFA Football Field">
+      <static>true</static>
+      <link name="field">
+        <pose>0 0 0.01 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>105 68</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="grass_field">
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>105 68</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0 0.6 0 1</ambient>
+            <diffuse>0 0.8 0 1</diffuse>
+          </material>
+        </visual>
+        <!-- Sidelines -->
+        <visual name="sideline_1">
+          <pose>0 34 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>105 0.12</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <visual name="sideline_2">
+          <pose>0 -34 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>105 0.12</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <!-- Goal lines -->
+        <visual name="goal_line_1">
+          <pose>-52.5 0 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>0.12 68</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <visual name="goal_line_2">
+          <pose>52.5 0 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>0.12 68</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <!-- Center line -->
+        <visual name="center_line">
+          <pose>0 0 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>0.12 68</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <!-- Center circle -->
+        <visual name="center_circle">
+          <pose>0 0 0.005 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <cylinder>
+              <radius>9.15</radius>
+              <length>0.0005</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <!-- Center point -->
+        <visual name="center_point">
+          <pose>0 0 0.01 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <cylinder>
+              <radius>0.2</radius>
+              <length>0.0005</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <!-- Penalty areas -->
+        <visual name="penalty_area_1">
+          <pose>-35.25 0 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>0.12 40.3</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <visual name="penalty_area_1_top">
+          <pose>-41.28 20.15 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>16.5 0.12</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <visual name="penalty_area_1_bottom">
+          <pose>-41.28 -20.15 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>16.5 0.12</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <visual name="penalty_area_2">
+          <pose>35.25 0 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>0.12 40.3</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <visual name="penalty_area_2_top">
+          <pose>41.28 20.15 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>16.5 0.12</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <visual name="penalty_area_2_bottom">
+          <pose>41.28 -20.15 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>16.5 0.12</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <!-- Goal areas -->
+        <visual name="goal_area_1">
+          <pose>-46.75 0 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>0.12 18.32</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <visual name="goal_area_1_top">
+          <pose>-47.66 9.16 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>5.5 0.12</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <visual name="goal_area_1_bottom">
+          <pose>-47.66 -9.16 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>5.5 0.12</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <visual name="goal_area_2">
+          <pose>46.75 0 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>0.12 18.32</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <visual name="goal_area_2_top">
+          <pose>47.66 9.16 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>5.5 0.12</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <visual name="goal_area_2_bottom">
+          <pose>47.66 -9.16 0.011 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>5.5 0.12</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <!-- Penalty spots -->
+        <visual name="penalty_spot_1">
+          <pose>-41.5 0 0.01 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <cylinder>
+              <radius>0.2</radius>
+              <length>0.0005</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+        <visual name="penalty_spot_2">
+          <pose>41.5 0 0.01 0 0 0</pose>
+          <cast_shadows>false</cast_shadows>
+          <geometry>
+            <cylinder>
+              <radius>0.2</radius>
+              <length>0.0005</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <!-- Objetos sortidos -->
+    <model name="cone_2">
+      <pose>15 20 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+        <geometry>
+        <cylinder>
+          <radius>0.1</radius>
+          <length>0.5</length>
+        </cylinder>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+        <cylinder>
+          <radius>0.1</radius>
+          <length>0.5</length>
+        </cylinder>
+        </geometry>
+        <material>
+        <ambient>1 0 0 1</ambient>
+        <diffuse>1 0 0 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+    <model name="box_2">
+      <pose>-18 25 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+        <geometry>
+        <box>
+          <size>0.5 0.5 0.5</size>
+        </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+        <box>
+          <size>0.5 0.5 0.5</size>
+        </box>
+        </geometry>
+        <material>
+        <ambient>0 1 0 1</ambient>
+        <diffuse>0 1 0 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+    <model name="cylinder_2">
+      <pose>30 -15 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+        <geometry>
+        <cylinder>
+          <radius>0.25</radius>
+          <length>0.5</length>
+        </cylinder>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+        <cylinder>
+          <radius>0.25</radius>
+          <length>0.5</length>
+        </cylinder>
+        </geometry>
+        <material>
+        <ambient>0 0 1 1</ambient>
+        <diffuse>0 0 1 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+    <model name="sphere_2">
+      <pose>-25 -20 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+        <geometry>
+        <sphere>
+          <radius>0.25</radius>
+        </sphere>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+        <sphere>
+          <radius>0.25</radius>
+        </sphere>
+        </geometry>
+        <material>
+        <ambient>1 1 0 1</ambient>
+        <diffuse>1 1 0 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+    <model name="cone_3">
+      <pose>40 10 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+        <geometry>
+        <cylinder>
+          <radius>0.1</radius>
+          <length>0.5</length>
+        </cylinder>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+        <cylinder>
+          <radius>0.1</radius>
+          <length>0.5</length>
+        </cylinder>
+        </geometry>
+        <material>
+        <ambient>1 0 0 1</ambient>
+        <diffuse>1 0 0 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+    <model name="box_3">
+      <pose>-35 30 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+        <geometry>
+        <box>
+          <size>0.5 0.5 0.5</size>
+        </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+        <box>
+          <size>0.5 0.5 0.5</size>
+        </box>
+        </geometry>
+        <material>
+        <ambient>0 1 0 1</ambient>
+        <diffuse>0 1 0 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+    <model name="cylinder_3">
+      <pose>50 -30 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+        <geometry>
+        <cylinder>
+          <radius>0.25</radius>
+          <length>0.5</length>
+        </cylinder>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+        <cylinder>
+          <radius>0.25</radius>
+          <length>0.5</length>
+        </cylinder>
+        </geometry>
+        <material>
+        <ambient>0 0 1 1</ambient>
+        <diffuse>0 0 1 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+    <model name="sphere_3">
+      <pose>-40 -35 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+        <geometry>
+        <sphere>
+          <radius>0.25</radius>
+        </sphere>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+        <sphere>
+          <radius>0.25</radius>
+        </sphere>
+        </geometry>
+        <material>
+        <ambient>1 1 0 1</ambient>
+        <diffuse>1 1 0 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+    <model name="cone_4">
+      <pose>25 50 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+      <geometry>
+      <cylinder>
+        <radius>0.1</radius>
+        <length>0.5</length>
+      </cylinder>
+      </geometry>
+      </collision>
+      <visual name="visual">
+      <geometry>
+      <cylinder>
+        <radius>0.1</radius>
+        <length>0.5</length>
+      </cylinder>
+      </geometry>
+      <material>
+      <ambient>1 0 0 1</ambient>
+      <diffuse>1 0 0 1</diffuse>
+      </material>
+      </visual>
+      </link>
+    </model>
+    <model name="box_4">
+      <pose>-50 40 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+      <geometry>
+      <box>
+        <size>0.5 0.5 0.5</size>
+      </box>
+      </geometry>
+      </collision>
+      <visual name="visual">
+      <geometry>
+      <box>
+        <size>0.5 0.5 0.5</size>
+      </box>
+      </geometry>
+      <material>
+      <ambient>0 1 0 1</ambient>
+      <diffuse>0 1 0 1</diffuse>
+      </material>
+      </visual>
+      </link>
+    </model>
+    <model name="cylinder_4">
+      <pose>60 -45 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+      <geometry>
+      <cylinder>
+        <radius>0.25</radius>
+        <length>0.5</length>
+      </cylinder>
+      </geometry>
+      </collision>
+      <visual name="visual">
+      <geometry>
+      <cylinder>
+        <radius>0.25</radius>
+        <length>0.5</length>
+      </cylinder>
+      </geometry>
+      <material>
+      <ambient>0 0 1 1</ambient>
+      <diffuse>0 0 1 1</diffuse>
+      </material>
+      </visual>
+      </link>
+    </model>
+    <model name="sphere_4">
+      <pose>-55 -50 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+      <geometry>
+      <sphere>
+      <radius>0.25</radius>
+      </sphere>
+      </geometry>
+      </collision>
+      <visual name="visual">
+      <geometry>
+      <sphere>
+      <radius>0.25</radius>
+      </sphere>
+      </geometry>
+      <material>
+      <ambient>1 1 0 1</ambient>
+      <diffuse>1 1 0 1</diffuse>
+      </material>
+      </visual>
+      </link>
+    </model>
+    <!-- Objetos próximos da origem (2 a 10 metros) -->
+    <model name="cone_near_1">
+      <pose>2 0 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+        <geometry>
+        <cylinder>
+          <radius>0.1</radius>
+          <length>0.5</length>
+        </cylinder>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+        <cylinder>
+          <radius>0.1</radius>
+          <length>0.5</length>
+        </cylinder>
+        </geometry>
+        <material>
+        <ambient>1 0 0 1</ambient>
+        <diffuse>1 0 0 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+    <model name="box_near_1">
+      <pose>0 3 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+        <geometry>
+        <box>
+          <size>0.5 0.5 0.5</size>
+        </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+        <box>
+          <size>0.5 0.5 0.5</size>
+        </box>
+        </geometry>
+        <material>
+        <ambient>0 1 0 1</ambient>
+        <diffuse>0 1 0 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+    <model name="cylinder_near_1">
+      <pose>-4 4 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+        <geometry>
+        <cylinder>
+          <radius>0.25</radius>
+          <length>0.5</length>
+        </cylinder>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+        <cylinder>
+          <radius>0.25</radius>
+          <length>0.5</length>
+        </cylinder>
+        </geometry>
+        <material>
+        <ambient>0 0 1 1</ambient>
+        <diffuse>0 0 1 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+    <model name="sphere_near_1">
+      <pose>6 -2 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+        <geometry>
+        <sphere>
+          <radius>0.25</radius>
+        </sphere>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+        <sphere>
+          <radius>0.25</radius>
+        </sphere>
+        </geometry>
+        <material>
+        <ambient>1 1 0 1</ambient>
+        <diffuse>1 1 0 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+    <model name="cone_near_2">
+      <pose>8 8 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+        <geometry>
+        <cylinder>
+          <radius>0.1</radius>
+          <length>0.5</length>
+        </cylinder>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+        <cylinder>
+          <radius>0.1</radius>
+          <length>0.5</length>
+        </cylinder>
+        </geometry>
+        <material>
+        <ambient>1 0 0 1</ambient>
+        <diffuse>1 0 0 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+    <model name="box_near_2">
+      <pose>-10 5 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+        <geometry>
+        <box>
+          <size>0.5 0.5 0.5</size>
+        </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+        <box>
+          <size>0.5 0.5 0.5</size>
+        </box>
+        </geometry>
+        <material>
+        <ambient>0 1 0 1</ambient>
+        <diffuse>0 1 0 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+    <model name="cylinder_near_2">
+      <pose>10 -7 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+        <geometry>
+        <cylinder>
+          <radius>0.25</radius>
+          <length>0.5</length>
+        </cylinder>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+        <cylinder>
+          <radius>0.25</radius>
+          <length>0.5</length>
+        </cylinder>
+        </geometry>
+        <material>
+        <ambient>0 0 1 1</ambient>
+        <diffuse>0 0 1 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+    <model name="sphere_near_2">
+      <pose>-9 -10 0.25 0 0 0</pose>
+      <link name="link">
+      <collision name="collision">
+        <geometry>
+        <sphere>
+          <radius>0.25</radius>
+        </sphere>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+        <sphere>
+          <radius>0.25</radius>
+        </sphere>
+        </geometry>
+        <material>
+        <ambient>1 1 0 1</ambient>
+        <diffuse>1 1 0 1</diffuse>
+        </material>
+      </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

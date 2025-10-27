@@ -1,0 +1,7 @@
+{
+    "documentId": "9826340925f893006b83f4dc",
+    "outputFormat": "urdf",
+    "packageName": "asinus_description/asinus",
+    "robotName": "asinus_robot",
+    "assemblerName": "asinus_assembler"
+}

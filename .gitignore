@@ -1,0 +1,30 @@
+# Ignore Visual Studio Code files
+.vscode/
+
+# Ignore PlatformIO build files
+asinus_code/asinus/.pio/
+asinus_code/asinus/.vscode/
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore ROS 2 build folders
+build/
+install/
+log/
+
+# Ignore compiled objects and libraries
+*.so
+*.a
+*.out
+
+# Ignore backup files
+*~
+
+# Ignore Gazebo log files
+/home/r1/.gazebo/server-11345/default.log
+
+# Ignore other temporary files
+*.db
+*.db-shm
+*.db-wal

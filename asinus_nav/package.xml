@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>asinus_nav</name>
+  <version>0.1.0</version>
+  <description>
+    Navigation package for asinus robot with Nav2 stack
+  </description>
+  <author email="rinaldo.filho.095@ufrn.edu.com">Rinaldo T.S Filho</author>
+  <maintainer email="rinaldo.filho.095@ufrn.edu.com">Rinaldo T.S Filho</maintainer>
+  <license file="LICENSE">BSD Clause 3</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>asinus_description</exec_depend>
+  <exec_depend>asinus_gz</exec_depend>
+  <exec_depend>ros2_control_asinus</exec_depend>
+  
+  <!-- Navigation dependencies -->
+  <exec_depend>navigation2</exec_depend>
+  <exec_depend>nav2_bringup</exec_depend>
+  <exec_depend>nav2_common</exec_depend>
+  <exec_depend>nav2_simple_commander</exec_depend>
+  
+  <!-- SLAM dependencies -->
+  <exec_depend>slam_toolbox</exec_depend>
+  
+  <!-- Localization dependencies -->
+  <exec_depend>robot_localization</exec_depend>
+  
+  <!-- Core ROS dependencies -->
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>tf2_geometry_msgs</exec_depend>
+  
+  <!-- Visualization -->
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>rviz_common</exec_depend>
+  <exec_depend>rviz_default_plugins</exec_depend>
+  
+  <!-- Launch system -->
+  <exec_depend>ros2launch</exec_depend>
+  <exec_depend>xacro</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
