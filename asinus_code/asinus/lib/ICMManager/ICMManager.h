@@ -8,11 +8,12 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <ICM_20948.h>
+#include "AsinusManager.h"
 
 class ICMManager {
 public:
     // sda / scl default to common ESP32 pins (can be overridden)
-    ICMManager(int sda = 16, int scl = 17);
+    ICMManager(int sda = 18, int scl = 17);
 
     // Initialize I2C (calls Wire.begin with provided pins)
     bool beginI2C();
@@ -25,6 +26,8 @@ public:
 
     // Convenience
     bool available() const { return icmAvailable; }
+
+    IMUTelemetry returnTelemetry();
 
 private:
     ICM_20948_I2C myICM;

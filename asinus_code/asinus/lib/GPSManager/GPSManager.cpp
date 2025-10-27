@@ -1,8 +1,9 @@
 #include "GPSManager.h"
+#include "AsinusManager.h"
 
 GPSManager::GPSManager(int rx_pin, int tx_pin, int baud) 
     : rxPin(rx_pin), txPin(tx_pin), baudRate(baud), lastStatusUpdate(0) {
-    gpsSerial = new HardwareSerial(2); // Use UART2 on ESP32
+    gpsSerial = new EspSoftwareSerial::UART(rxPin, txPin);
 }
 
 GPSManager::~GPSManager() {
@@ -10,7 +11,7 @@ GPSManager::~GPSManager() {
 }
 
 bool GPSManager::begin() {
-    gpsSerial->begin(baudRate, SERIAL_8N1, rxPin, txPin);
+    gpsSerial->begin(baudRate);
     
     Serial.print(F("GPS initialized on pins RX:"));
     Serial.print(rxPin);
@@ -183,3 +184,16 @@ void GPSManager::readGPS() {
         Serial.println("");
     }
 }
+
+
+
+GPSTelemetry GPSManager::returnTelemetry() {
+    update();
+    GPSTelemetry gps;
+    gps.lat = getLatitude();
+    gps.lng = getLongitude();
+    gps.hdop = getHDOP();
+    gps.ts = millis();
+    return gps;
+}
+

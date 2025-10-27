@@ -1,31 +1,37 @@
 // ICMManager.cpp
 #include "ICMManager.h"
-
+#include "AsinusManager.h"
 #define ICM_AD0_VAL 1
 
 ICMManager::ICMManager(int sda, int scl)
-    : sda_pin(sda), scl_pin(scl), icmAvailable(false) {
+    : sda_pin(sda), scl_pin(scl), icmAvailable(false)
+{
 }
-
-bool ICMManager::beginI2C() {
-    Serial.print("Starting I2C on SDA="); Serial.print(sda_pin);
-    Serial.print(" SCL="); Serial.println(scl_pin);
+bool ICMManager::beginI2C()
+{
+    Serial.print("Starting I2C on SDA=");
+    Serial.print(sda_pin);
+    Serial.print(" SCL=");
+    Serial.println(scl_pin);
     Wire.begin(sda_pin, scl_pin);
     delay(10);
     return true;
 }
 
-bool ICMManager::initialize() {
+bool ICMManager::initialize()
+{
     Serial.println(F("Initializing ICM-20948..."));
     beginI2C();
 
     bool initialized = false;
     int attempts = 0;
-    while (!initialized && attempts < 5) {
+    while (!initialized && attempts < 5)
+    {
         myICM.begin(Wire, ICM_AD0_VAL);
         Serial.print(F("Initialization of the sensor returned: "));
         Serial.println(myICM.statusString());
-        if (myICM.status == ICM_20948_Stat_Ok) {
+        if (myICM.status == ICM_20948_Stat_Ok)
+        {
             initialized = true;
             break;
         }
@@ -35,24 +41,32 @@ bool ICMManager::initialize() {
     }
 
     icmAvailable = initialized;
-    if (initialized) {
+    if (initialized)
+    {
         Serial.println(F("ICM-20948 initialized successfully!"));
-    } else {
+    }
+    else
+    {
         Serial.println(F("ERROR: ICM-20948 failed to initialize."));
     }
     return initialized;
 }
 
-void ICMManager::update() {
-    if (!icmAvailable) {
+void ICMManager::update()
+{
+    if (!icmAvailable)
+    {
         Serial.println(F("ICM-20948 - NOT AVAILABLE"));
         return;
     }
 
-    if (myICM.dataReady()) {
+    if (myICM.dataReady())
+    {
         myICM.getAGMT();
         printScaledAGMT();
-    } else {
+    }
+    else
+    {
         Serial.println(F("ICM-20948: Waiting for data"));
     }
 }
@@ -124,4 +138,27 @@ void ICMManager::printScaledAGMT()
     printFormattedFloat(myICM.temp(), 5, 2);
     Serial.print(F(" ]"));
     Serial.println();
+}
+
+IMUTelemetry ICMManager::returnTelemetry()
+{
+    if (myICM.dataReady())
+    {
+        myICM.getAGMT();
+        IMUTelemetry imu;
+        imu.accel_x = myICM.accX();
+        imu.accel_y = myICM.accY();
+        imu.accel_z = myICM.accZ();
+        imu.gyro_x = myICM.gyrX();
+        imu.gyro_y = myICM.gyrY();
+        imu.gyro_z = myICM.gyrZ();
+        imu.mag_x = myICM.magX();
+        imu.mag_y = myICM.magY();
+        imu.mag_z = myICM.magZ();
+        imu.temp = myICM.temp();
+        imu.ts = millis();
+        return imu;
+    }
+    // Return empty telemetry if data not ready
+    return IMUTelemetry();
 }

@@ -3,19 +3,22 @@
 
 #include <Arduino.h>
 #include <TinyGPSPlus.h>
-#include <HardwareSerial.h>
+#include <SoftwareSerial.h>
+#include "AsinusManager.h"
+
+
 
 class GPSManager {
 private:
     TinyGPSPlus gps;
-    HardwareSerial* gpsSerial;
+    EspSoftwareSerial::UART* gpsSerial;
     int rxPin;
     int txPin;
     int baudRate;
     unsigned long lastStatusUpdate;
     
 public:
-    GPSManager(int rx_pin = 16, int tx_pin = 17, int baud = 9600);
+    GPSManager(int rx_pin = 15, int tx_pin = 16, int baud = 9600);
     ~GPSManager();
     
     // Initialization
@@ -60,6 +63,8 @@ public:
     
     // Configuration
     String getLibraryVersion() const;
+
+    GPSTelemetry returnTelemetry();
 };
 
 #endif // GPS_MANAGER_H
