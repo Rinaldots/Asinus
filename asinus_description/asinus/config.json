@@ -3,5 +3,5 @@
     "outputFormat": "urdf",
     "packageName": "asinus_description/asinus",
     "robotName": "asinus_robot",
-    "assemblerName": "asinus_assembler"
+    "assemblyName": "asinus_two_wheel"
 }

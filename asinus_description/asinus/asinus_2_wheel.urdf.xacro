@@ -4,10 +4,10 @@
   <xacro:arg name="prefix" default="" />
   <xacro:arg name="use_mock_hardware" default="false" />
 
-  <xacro:include filename="$(find asinus_description)/asinus/robot_4_wheel.urdf" />
+  <xacro:include filename="$(find asinus_description)/asinus/robot_2_wheel.urdf" />
 
   <!-- Import diffbot ros2_control description -->
-  <xacro:include filename="$(find asinus_description)/asinus/control_4_wheel.xacro" />
+  <xacro:include filename="$(find asinus_description)/asinus/control_2_wheel.xacro" />
 
   <xacro:asinus_ros2_control
     name="AsinusControl" prefix="$(arg prefix)" use_mock_hardware="$(arg use_mock_hardware)"/>

@@ -29,6 +29,25 @@ typedef struct {
     uint16_t head;
     int16_t  command1;
     int16_t  command2;
+    //int16_t  frontrightMotorSpeed;
+    //int16_t  frontleftMotorSpeed;
+    int16_t  backrightMotorSpeed;
+    int16_t  backleftMotorSpeed;
+    //int16_t  frontrightMotorEncoderCumulativeCount;
+    //int16_t  frontleftMotorEncoderCumulativeCount;
+    int32_t  backrightMotorEncoderCumulativeCount;
+    int32_t  backleftMotorEncoderCumulativeCount;
+    int16_t  batteryVoltage;
+    // int16_t  boardTemperature;
+    //uint16_t commandLed;
+    uint16_t checksum;
+} TwoMotorWheelFeedback;
+
+
+typedef struct {
+    uint16_t head;
+    int16_t  command1;
+    int16_t  command2;
     int16_t  frontrightMotorSpeed;
     int16_t  frontleftMotorSpeed;
     int16_t  backrightMotorSpeed;
@@ -41,7 +60,7 @@ typedef struct {
     int16_t  boardTemperature;
     uint16_t commandLed;
     uint16_t checksum;
-} MotorWheelFeedback;
+} FourMotorWheelFeedback;
 
 typedef struct {
     uint16_t start_frame = HEAD_FRAME;

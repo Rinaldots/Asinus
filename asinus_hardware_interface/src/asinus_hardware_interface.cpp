@@ -14,6 +14,8 @@
 
 #include "asinus_hardware_interface/asinus_hardware_interface.hpp"
 
+#define TWO_WHEEL
+
 namespace asinus_hardware_interface
 {
     hardware_interface::CallbackReturn AsinusHardwareInterface::on_init(const hardware_interface::HardwareInfo & info)
@@ -21,24 +23,41 @@ namespace asinus_hardware_interface
         if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS) {
             return hardware_interface::CallbackReturn::ERROR;
         }
+        node_ = rclcpp::Node::make_shared("asinus_hardware_interface_node");
+        serialPortService.initializePublishers(node_);
 
-        hardwareConfig.leftWheelJointName = info.hardware_parameters.at("left_wheel_joint_name");
-        hardwareConfig.rightWheelJointName = info.hardware_parameters.at("right_wheel_joint_name");
+        #ifdef FOUR_WHEEL
+        hardwareConfig.frontleftWheelJointName = info.hardware_parameters.at("front_left_wheel_joint_name");
+        hardwareConfig.frontrightWheelJointName = info.hardware_parameters.at("front_right_wheel_joint_name");
+        hardwareConfig.backleftWheelJointName = info.hardware_parameters.at("back_left_wheel_joint_name");
+        hardwareConfig.backrightWheelJointName = info.hardware_parameters.at("back_right_wheel_joint_name");
+        #endif
+        #ifdef TWO_WHEEL
+        hardwareConfig.backleftWheelJointName = info.hardware_parameters.at("back_left_wheel_joint_name");
+        hardwareConfig.backrightWheelJointName = info.hardware_parameters.at("back_right_wheel_joint_name");
+        #endif
         hardwareConfig.loopRate = std::stof(info.hardware_parameters.at("loop_rate"));
         // hardwareConfig.encoderTicksPerRevolution = std::stoi(info.hardware_parameters.at("encoder_ticks_per_revolution"));
 
         serialPortConfig.device = info.hardware_parameters.at("device");
         serialPortConfig.baudRate = std::stoi(info.hardware_parameters.at("baud_rate"));
         serialPortConfig.timeout = std::stoi(info.hardware_parameters.at("timeout"));
-
-        frontleftWheel = MotorWheel(info.hardware_parameters.at("left_wheel_joint_name"), 
+        #ifdef FOUR_WHEEL
+        frontleftWheel = MotorWheel(info.hardware_parameters.at("front_left_wheel_joint_name"), 
                                 std::stoi(info.hardware_parameters.at("encoder_ticks_per_revolution")));
-        frontrightWheel = MotorWheel(info.hardware_parameters.at("right_wheel_joint_name"), 
+        frontrightWheel = MotorWheel(info.hardware_parameters.at("front_right_wheel_joint_name"), 
                                 std::stoi(info.hardware_parameters.at("encoder_ticks_per_revolution")));
-        backleftWheel = MotorWheel(info.hardware_parameters.at("left_wheel_joint_name"), 
+        backleftWheel = MotorWheel(info.hardware_parameters.at("back_left_wheel_joint_name"), 
                                 std::stoi(info.hardware_parameters.at("encoder_ticks_per_revolution")));
-        backrightWheel = MotorWheel(info.hardware_parameters.at("right_wheel_joint_name"), 
+        backrightWheel = MotorWheel(info.hardware_parameters.at("back_right_wheel_joint_name"), 
                                 std::stoi(info.hardware_parameters.at("encoder_ticks_per_revolution")));
+        #endif
+        #ifdef TWO_WHEEL
+        backleftWheel = MotorWheel(info.hardware_parameters.at("back_left_wheel_joint_name"), 
+                                std::stoi(info.hardware_parameters.at("encoder_ticks_per_revolution")));
+        backrightWheel = MotorWheel(info.hardware_parameters.at("back_right_wheel_joint_name"), 
+                                std::stoi(info.hardware_parameters.at("encoder_ticks_per_revolution")));
+        #endif
 
         for (const hardware_interface::ComponentInfo & joint : info.joints)
         {
@@ -133,10 +152,17 @@ namespace asinus_hardware_interface
         {
             return hardware_interface::CallbackReturn::ERROR;
         }
-
-        serialPortService.BindMotorWheelFeedbackCallback(
-            std::bind(&AsinusHardwareInterface::motorWheelFeedbackCallback, this, std::placeholders::_1)
+        #ifdef TWO_WHEEL
+        serialPortService.BindTwoMotorWheelFeedbackCallback(
+            std::bind(&AsinusHardwareInterface::TwoMotorWheelFeedbackCallback, this, std::placeholders::_1)
         );
+        #endif
+        #ifdef FOUR_WHEEL
+        serialPortService.BindFourMotorWheelFeedbackCallback(
+            std::bind(&AsinusHardwareInterface::FourMotorWheelFeedbackCallback, this, std::placeholders::_1)
+        );
+        #endif
+
 
         return hardware_interface::CallbackReturn::SUCCESS;
     }
@@ -155,8 +181,7 @@ namespace asinus_hardware_interface
 
     hardware_interface::CallbackReturn AsinusHardwareInterface::on_activate(const rclcpp_lifecycle::State &)
     {
-        // TODO: add some logic
-        RCLCPP_INFO(rclcpp::get_logger("AsinusHardwareInterface"), "Activating... please wait a moment...");
+        //timer
 
         return hardware_interface::CallbackReturn::SUCCESS;
     }
@@ -171,7 +196,7 @@ namespace asinus_hardware_interface
 
     hardware_interface::return_type AsinusHardwareInterface::read(const rclcpp::Time &, const rclcpp::Duration & period)
     {
-        serialPortService.read();
+        std::lock_guard<std::mutex> lock(wheel_data_mutex_);
 
         double frontleftlastPosition = frontleftWheel.position;
         frontleftWheel.position = frontleftWheel.calculateEncoderAngle();
@@ -219,13 +244,23 @@ namespace asinus_hardware_interface
         return hardware_interface::return_type::OK;
     }
 
-    void AsinusHardwareInterface::motorWheelFeedbackCallback(MotorWheelFeedback motorWheelFeedback) 
+    #ifdef TWO_WHEEL
+    void AsinusHardwareInterface::TwoMotorWheelFeedbackCallback(TwoMotorWheelFeedback motorWheelFeedback) 
+    {
+        std::lock_guard<std::mutex> lock(wheel_data_mutex_);
+        backleftWheel.updateEncoderTicks(motorWheelFeedback.backleftMotorEncoderCumulativeCount);
+        backrightWheel.updateEncoderTicks(motorWheelFeedback.backrightMotorEncoderCumulativeCount);
+    }
+    #endif
+    #ifdef FOUR_WHEEL
+    void AsinusHardwareInterface::FourMotorWheelFeedbackCallback(FourMotorWheelFeedback motorWheelFeedback) 
     {
         frontleftWheel.updateEncoderTicks(motorWheelFeedback.frontleftMotorEncoderCumulativeCount);
         frontrightWheel.updateEncoderTicks(motorWheelFeedback.frontrightMotorEncoderCumulativeCount);
         backleftWheel.updateEncoderTicks(motorWheelFeedback.backleftMotorEncoderCumulativeCount);
         backrightWheel.updateEncoderTicks(motorWheelFeedback.backrightMotorEncoderCumulativeCount);
     }
+    #endif
 }
 
 PLUGINLIB_EXPORT_CLASS(asinus_hardware_interface::AsinusHardwareInterface, hardware_interface::SystemInterface)

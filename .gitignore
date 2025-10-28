@@ -4,6 +4,9 @@
 # Ignore PlatformIO build files
 asinus_code/asinus/.pio/
 asinus_code/asinus/.vscode/
+
+asinus_description/keys.sh
+asinus_description/Keys.txt
 # Ignore Python cache
 __pycache__/
 *.pyc

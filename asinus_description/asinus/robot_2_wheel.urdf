@@ -1,0 +1,649 @@
+<?xml version="1.0" ?>
+<!-- Generated using onshape-to-robot -->
+<!-- Onshape document_id: 9826340925f893006b83f4dc -->
+<robot name="asinus_robot">
+  <!-- Link frame -->
+  <link name="frame">
+    <inertial>
+      <origin xyz="0.00342576 6.66362e-16 0.247229" rpy="0 0 0"/>
+      <mass value="11.0275"/>
+      <inertia ixx="0.780335" ixy="3.76869e-16" ixz="0.00669191" iyy="1.07502" iyz="-5.39499e-16" izz="1.11603"/>
+    </inertial>
+    <!-- Part frame -->
+    <visual>
+      <origin xyz="0.21647 1.05574 0.08" rpy="0 -0 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/frame.stl"/>
+      </geometry>
+      <material name="frame_material">
+        <color rgba="0.498039 0.498039 0.498039 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.21647 1.05574 0.08" rpy="0 -0 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/frame.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part suporte_roda -->
+    <visual>
+      <origin xyz="0.73147 1.01064 0.0618" rpy="7.63278e-17 -3.45127e-31 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/suporte_roda.stl"/>
+      </geometry>
+      <material name="suporte_roda_material">
+        <color rgba="0.980392 0.713725 0.00392157 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.73147 1.01064 0.0618" rpy="7.63278e-17 -3.45127e-31 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/suporte_roda.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part kinect_xbox -->
+    <visual>
+      <origin xyz="-0.259 0.00825 0.279" rpy="1.5708 -0 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/kinect_xbox.stl"/>
+      </geometry>
+      <material name="kinect_xbox_material">
+        <color rgba="0.494118 0.494118 0.494118 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.259 0.00825 0.279" rpy="1.5708 -0 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/kinect_xbox.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part uppercasterbody -->
+    <visual>
+      <origin xyz="-0.29989 0.174945 0.0470217" rpy="1.5708 9.13206e-33 -3.14159"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/uppercasterbody.stl"/>
+      </geometry>
+      <material name="uppercasterbody_material">
+        <color rgba="0.745098 0.737255 0.729412 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29989 0.174945 0.0470217" rpy="1.5708 9.13206e-33 -3.14159"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/uppercasterbody.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part suporte_roda_2 -->
+    <visual>
+      <origin xyz="0.73147 1.43064 0.0618" rpy="7.63278e-17 -3.45127e-31 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/suporte_roda.stl"/>
+      </geometry>
+      <material name="suporte_roda_2_material">
+        <color rgba="0.980392 0.713725 0.00392157 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.73147 1.43064 0.0618" rpy="7.63278e-17 -3.45127e-31 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/suporte_roda.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part uppercasterbody_2 -->
+    <visual>
+      <origin xyz="-0.29989 -0.141055 0.0470217" rpy="1.5708 2.25248e-32 -3.14159"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/uppercasterbody.stl"/>
+      </geometry>
+      <material name="uppercasterbody_2_material">
+        <color rgba="0.745098 0.737255 0.729412 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29989 -0.141055 0.0470217" rpy="1.5708 2.25248e-32 -3.14159"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/uppercasterbody.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part davi0c08ca42kk0b -->
+    <visual>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b.stl"/>
+      </geometry>
+      <material name="davi0c08ca42kk0b_material">
+        <color rgba="0.4 0.4 0.4 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part davi0c08ca42kk0b_2 -->
+    <visual>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__2.stl"/>
+      </geometry>
+      <material name="davi0c08ca42kk0b_2_material">
+        <color rgba="0.4 0.4 0.4 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__2.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part davi0c08ca42kk0b_3 -->
+    <visual>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__3.stl"/>
+      </geometry>
+      <material name="davi0c08ca42kk0b_3_material">
+        <color rgba="0.4 0.4 0.4 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__3.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part davi0c08ca42kk0b_4 -->
+    <visual>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__4.stl"/>
+      </geometry>
+      <material name="davi0c08ca42kk0b_4_material">
+        <color rgba="0.4 0.4 0.4 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__4.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part davi0c08ca42kk0b_5 -->
+    <visual>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__5.stl"/>
+      </geometry>
+      <material name="davi0c08ca42kk0b_5_material">
+        <color rgba="0.611765 0.454902 0.160784 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__5.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part davi0c08ca42kk0b_6 -->
+    <visual>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__6.stl"/>
+      </geometry>
+      <material name="davi0c08ca42kk0b_6_material">
+        <color rgba="0.4 0.4 0.4 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__6.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part davi0c08ca42kk0b_7 -->
+    <visual>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__7.stl"/>
+      </geometry>
+      <material name="davi0c08ca42kk0b_7_material">
+        <color rgba="0.298039 0.298039 0.298039 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__7.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part davi0c08ca42kk0b_8 -->
+    <visual>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__8.stl"/>
+      </geometry>
+      <material name="davi0c08ca42kk0b_8_material">
+        <color rgba="0.611765 0.454902 0.160784 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__8.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part davi0c08ca42kk0b_9 -->
+    <visual>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__9.stl"/>
+      </geometry>
+      <material name="davi0c08ca42kk0b_9_material">
+        <color rgba="0.670588 0.596078 0.321569 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__9.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part davi0c08ca42kk0b_10 -->
+    <visual>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__10.stl"/>
+      </geometry>
+      <material name="davi0c08ca42kk0b_10_material">
+        <color rgba="0.611765 0.454902 0.160784 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__10.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part davi0c08ca42kk0b_11 -->
+    <visual>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__11.stl"/>
+      </geometry>
+      <material name="davi0c08ca42kk0b_11_material">
+        <color rgba="0.611765 0.454902 0.160784 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__11.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part davi0c08ca42kk0b_12 -->
+    <visual>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__12.stl"/>
+      </geometry>
+      <material name="davi0c08ca42kk0b_12_material">
+        <color rgba="0.4 0.4 0.4 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__12.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part davi0c08ca42kk0b_13 -->
+    <visual>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__13.stl"/>
+      </geometry>
+      <material name="davi0c08ca42kk0b_13_material">
+        <color rgba="0.490196 0.490196 0.490196 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__13.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part davi0c08ca42kk0b_14 -->
+    <visual>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__14.stl"/>
+      </geometry>
+      <material name="davi0c08ca42kk0b_14_material">
+        <color rgba="0.4 0.4 0.4 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__14.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part davi0c08ca42kk0b_15 -->
+    <visual>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__15.stl"/>
+      </geometry>
+      <material name="davi0c08ca42kk0b_15_material">
+        <color rgba="0.4 0.4 0.4 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__15.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part davi0c08ca42kk0b_16 -->
+    <visual>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__16.stl"/>
+      </geometry>
+      <material name="davi0c08ca42kk0b_16_material">
+        <color rgba="0.4 0.4 0.4 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="-0.29 8.70656e-16 0.5597" rpy="1.40166e-15 -1.38778e-17 -1.5708"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/davi0c08ca42kk0b__16.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <!-- Frame rgb_cam (dummy link + fixed joint) -->
+  <link name="rgb_cam">
+    <origin xyz="0 0 0" rpy="0 -0 0"/>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-9"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+  </link>
+  <joint name="rgb_cam_frame" type="fixed">
+    <origin xyz="-0.2572 -0.00344291 0.279" rpy="6.12323e-17 -1.5708 0"/>
+    <parent link="frame"/>
+    <child link="rgb_cam"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <!-- Frame depth_cam (dummy link + fixed joint) -->
+  <link name="depth_cam">
+    <origin xyz="0 0 0" rpy="0 -0 0"/>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-9"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+  </link>
+  <joint name="depth_cam_frame" type="fixed">
+    <origin xyz="-0.2572 0.0725571 0.279" rpy="6.12323e-17 -1.5708 0"/>
+    <parent link="frame"/>
+    <child link="depth_cam"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <!-- Frame imu (dummy link + fixed joint) -->
+  <link name="imu">
+    <origin xyz="0 0 0" rpy="0 -0 0"/>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-9"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+  </link>
+  <joint name="imu_frame" type="fixed">
+    <origin xyz="-0.1575 -0.0534856 0.298" rpy="-1.8735e-16 3.747e-16 -3.14159"/>
+    <parent link="frame"/>
+    <child link="imu"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <!-- Frame lidar (dummy link + fixed joint) -->
+  <link name="lidar">
+    <origin xyz="0 0 0" rpy="0 -0 0"/>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-9"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+  </link>
+  <joint name="lidar_frame" type="fixed">
+    <origin xyz="-0.29 8.70421e-16 0.56" rpy="-2.71171e-31 -0 -3.14159"/>
+    <parent link="frame"/>
+    <child link="lidar"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+  <!-- Link hoverboard_wheel_6_5in -->
+  <link name="hoverboard_wheel_6_5in">
+    <inertial>
+      <origin xyz="7.77067e-12 -7.28086e-06 -0.0548547" rpy="0 0 0"/>
+      <mass value="2.58664"/>
+      <inertia ixx="0.00428046" ixy="-1.42644e-12" ixz="-7.69726e-13" iyy="0.00428056" iyz="1.03496e-06" izz="0.00729729"/>
+    </inertial>
+    <!-- Part hoverboard_wheel_6_5in -->
+    <visual>
+      <origin xyz="0.52647 -1.66533e-16 1.22074" rpy="1.5708 1.5708 0"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/hoverboard_wheel_6_5in.stl"/>
+      </geometry>
+      <material name="hoverboard_wheel_6_5in_material">
+        <color rgba="0.956863 0.956863 0.956863 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.52647 -1.66533e-16 1.22074" rpy="1.5708 1.5708 0"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/hoverboard_wheel_6_5in.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <!-- Joint from frame to hoverboard_wheel_6_5in -->
+  <joint name="bl_wheel_joint" type="continuous">
+    <origin xyz="0.205 -0.21 0.0618" rpy="1.5708 2.46519e-32 -3.14159"/>
+    <parent link="frame"/>
+    <child link="hoverboard_wheel_6_5in"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10"/>
+  </joint>
+  <!-- Link hoverboard_wheel_6_5in_2 -->
+  <link name="hoverboard_wheel_6_5in_2">
+    <inertial>
+      <origin xyz="7.77067e-12 -7.28086e-06 -0.0548547" rpy="0 0 0"/>
+      <mass value="2.58664"/>
+      <inertia ixx="0.00428046" ixy="-1.42644e-12" ixz="-7.69726e-13" iyy="0.00428056" iyz="1.03496e-06" izz="0.00729729"/>
+    </inertial>
+    <!-- Part hoverboard_wheel_6_5in_2 -->
+    <visual>
+      <origin xyz="0.52647 -1.66533e-16 1.22074" rpy="1.5708 1.5708 0"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/hoverboard_wheel_6_5in.stl"/>
+      </geometry>
+      <material name="hoverboard_wheel_6_5in_2_material">
+        <color rgba="0.956863 0.956863 0.956863 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.52647 -1.66533e-16 1.22074" rpy="1.5708 1.5708 0"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/hoverboard_wheel_6_5in.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <!-- Joint from frame to hoverboard_wheel_6_5in_2 -->
+  <joint name="br_wheel_joint" type="continuous">
+    <origin xyz="0.205 0.21 0.0618" rpy="-1.5708 2.47664e-32 -3.14159"/>
+    <parent link="frame"/>
+    <child link="hoverboard_wheel_6_5in_2"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10"/>
+  </joint>
+  <!-- Link castershaft -->
+  <link name="castershaft">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-09"/>
+      <inertia ixx="1e-09" ixy="0" ixz="0" iyy="1e-09" iyz="0" izz="1e-09"/>
+    </inertial>
+    <!-- Part maincasterbody -->
+    <visual>
+      <origin xyz="0.0138904 -0.0169447 -0.0258977" rpy="1.5708 7.63353e-47 2.40328e-33"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/maincasterbody.stl"/>
+      </geometry>
+      <material name="maincasterbody_material">
+        <color rgba="0.745098 0.737255 0.729412 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.0138904 -0.0169447 -0.0258977" rpy="1.5708 7.63353e-47 2.40328e-33"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/maincasterbody.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part castershaft -->
+    <visual>
+      <origin xyz="0.0138904 -0.0169447 -0.0258977" rpy="1.5708 7.63353e-47 2.40328e-33"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/castershaft.stl"/>
+      </geometry>
+      <material name="castershaft_material">
+        <color rgba="0.745098 0.737255 0.729412 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.0138904 -0.0169447 -0.0258977" rpy="1.5708 7.63353e-47 2.40328e-33"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/castershaft.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <!-- Link casterwheel1 -->
+  <link name="casterwheel1">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-09"/>
+      <inertia ixx="1e-09" ixy="0" ixz="0" iyy="1e-09" iyz="0" izz="1e-09"/>
+    </inertial>
+    <!-- Part casterwheel1 -->
+    <visual>
+      <origin xyz="0.0281023 -0.0154553 0.0264454" rpy="-1.5708 -1.5708 0"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/casterwheel1.stl"/>
+      </geometry>
+      <material name="casterwheel1_material">
+        <color rgba="0.74902 0.74902 0.74902 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.0281023 -0.0154553 0.0264454" rpy="-1.5708 -1.5708 0"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/casterwheel1.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <!-- Joint from castershaft to casterwheel1 -->
+  <joint name="caster_wheel_right_joint" type="continuous">
+    <origin xyz="-0.0128764 -0.0317024 -0.054" rpy="1.5708 -9.77896e-15 1.64061"/>
+    <parent link="castershaft"/>
+    <child link="casterwheel1"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10"/>
+  </joint>
+  <!-- Joint from frame to castershaft -->
+  <joint name="caster_right_joint" type="revolute">
+    <origin xyz="-0.286 0.158 0.0729066" rpy="9.85832e-15 -4.21511e-31 6.12323e-17"/>
+    <parent link="frame"/>
+    <child link="castershaft"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10" lower="-3.141592653589793" upper="3.141592653589793"/>
+  </joint>
+  <!-- Link castershaft_2 -->
+  <link name="castershaft_2">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-09"/>
+      <inertia ixx="1e-09" ixy="0" ixz="0" iyy="1e-09" iyz="0" izz="1e-09"/>
+    </inertial>
+    <!-- Part maincasterbody_2 -->
+    <visual>
+      <origin xyz="0.0138904 -0.0169447 -0.0258977" rpy="1.5708 1.8677e-48 -1.47717e-33"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/maincasterbody.stl"/>
+      </geometry>
+      <material name="maincasterbody_2_material">
+        <color rgba="0.745098 0.737255 0.729412 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.0138904 -0.0169447 -0.0258977" rpy="1.5708 1.8677e-48 -1.47717e-33"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/maincasterbody.stl"/>
+      </geometry>
+    </collision>
+    <!-- Part castershaft_2 -->
+    <visual>
+      <origin xyz="0.0138904 -0.0169447 -0.0258977" rpy="1.5708 1.8677e-48 -1.47717e-33"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/castershaft.stl"/>
+      </geometry>
+      <material name="castershaft_2_material">
+        <color rgba="0.745098 0.737255 0.729412 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.0138904 -0.0169447 -0.0258977" rpy="1.5708 1.8677e-48 -1.47717e-33"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/castershaft.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <!-- Link casterwheel1_2 -->
+  <link name="casterwheel1_2">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-09"/>
+      <inertia ixx="1e-09" ixy="0" ixz="0" iyy="1e-09" iyz="0" izz="1e-09"/>
+    </inertial>
+    <!-- Part casterwheel1_2 -->
+    <visual>
+      <origin xyz="0.0281023 -0.0154553 0.0264454" rpy="-1.5708 -1.5708 0"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/casterwheel1.stl"/>
+      </geometry>
+      <material name="casterwheel1_2_material">
+        <color rgba="0.74902 0.74902 0.74902 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.0281023 -0.0154553 0.0264454" rpy="-1.5708 -1.5708 0"/>
+      <geometry>
+        <mesh filename="package://asinus_description/asinus/assets/casterwheel1.stl"/>
+      </geometry>
+    </collision>
+  </link>
+  <!-- Joint from castershaft_2 to casterwheel1_2 -->
+  <joint name="caster_wheel_left_joint" type="continuous">
+    <origin xyz="-0.0128764 -0.0317024 -0.054" rpy="1.5708 9.67214e-16 1.64061"/>
+    <parent link="castershaft_2"/>
+    <child link="casterwheel1_2"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10"/>
+  </joint>
+  <!-- Joint from frame to castershaft_2 -->
+  <joint name="caster_left_joint" type="revolute">
+    <origin xyz="-0.286 -0.158 0.0729066" rpy="-2.2664e-17 -1.52117e-31 6.12323e-17"/>
+    <parent link="frame"/>
+    <child link="castershaft_2"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="10" lower="-3.141592653589793" upper="3.141592653589793"/>
+  </joint>
+</robot>

@@ -9,7 +9,7 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 def generate_launch_description():
     # Helper to ensure config path uses the base robot name, not the namespaced one
-    urdf_file_name = "asinus.urdf.xacro"
+    urdf_file_name = "asinus_2_wheel.urdf.xacro"
     pkg_asinus_description = get_package_share_directory("asinus_description")
     
     robot_description_path = os.path.join(pkg_asinus_description, "asinus", urdf_file_name)

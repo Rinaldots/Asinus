@@ -1,13 +1,6 @@
 controller_manager:
   ros__parameters:
-    update_rate: 50  # Hz
-
-    # Hardware plugin para ros2_control: AsinusHardwareInterface
-    hardware:
-      plugin: "asinus_hardware_interface/AsinusHardwareInterface"
-      device: "/dev/ttyACM0"
-      baud_rate: 115200
-      timeout: 1000
+    update_rate: 100  # Hz
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
@@ -17,12 +10,12 @@ controller_manager:
 
 asinus_base_controller:
   ros__parameters:
-    left_wheel_names: ["fl_wheel_joint","bl_wheel_joint" ]
-    right_wheel_names: ["fr_wheel_joint", "br_wheel_joint"]
+    left_wheel_names: ["bl_wheel_joint" ]
+    right_wheel_names: ["br_wheel_joint"]
 
     wheel_separation: 0.22
     #
-    wheels_per_side: 2  # actually 2, but both are controlled by 1 sign
+    wheels_per_side: 1  # actually 2, but both are controlled by 1 sign
     wheel_radius: 0.08255 # 0.085
 
     pid:
@@ -31,7 +24,7 @@ asinus_base_controller:
       d: 0.1
 
     wheel_separation_multiplier: 1.0
-    left_wheel_radius_multiplier: 1.0
+    left_wheel_radius_multiplier: 0.9
     right_wheel_radius_multiplier: 1.0
 
     publish_rate: 100.0

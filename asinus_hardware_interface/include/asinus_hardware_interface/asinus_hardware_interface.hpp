@@ -24,16 +24,20 @@
 #include "serial_port_service.hpp"
 #include "motor_wheel.hpp"
 
+#define TWO_WHEEL
+
 namespace asinus_hardware_interface
 {
     class AsinusHardwareInterface : public hardware_interface::SystemInterface
     {
         struct HardwareConfig
         {
-            std::string leftWheelJointName = "left_wheel_joint";
-            std::string rightWheelJointName = "right_wheel_joint";
+            std::string frontleftWheelJointName = "front_left_wheel_joint";
+            std::string frontrightWheelJointName = "front_right_wheel_joint";
+            std::string backleftWheelJointName = "back_left_wheel_joint";
+            std::string backrightWheelJointName = "back_right_wheel_joint";
 
-            float loopRate = 30.0;
+            float loopRate = 10.0;
             int encoderTicksPerRevolution = 1024;
         };
 
@@ -41,7 +45,7 @@ namespace asinus_hardware_interface
         {
             std::string device = "/dev/ttyUSB0";
             int baudRate = 115200;
-            int timeout = 1000;
+            int timeout = 10;
         };
 
     public:
@@ -64,15 +68,24 @@ namespace asinus_hardware_interface
         hardware_interface::return_type read(const rclcpp::Time &, const rclcpp::Duration &) override;
 
         hardware_interface::return_type write(const rclcpp::Time &, const rclcpp::Duration &) override;
+#ifdef TWO_WHEEL
+        void TwoMotorWheelFeedbackCallback(TwoMotorWheelFeedback);
+#endif
 
-        void motorWheelFeedbackCallback(MotorWheelFeedback);
+#ifdef FOUR_WHEEL
+        void FourMotorWheelFeedbackCallback(FourMotorWheelFeedback);
+#endif
 
     private:
-
+        
+        rclcpp::Node::SharedPtr node_;
+        
         SerialPortService serialPortService;
 
         HardwareConfig hardwareConfig;
         SerialPortConfig serialPortConfig;
+        
+        std::mutex wheel_data_mutex_;
 
         MotorWheel frontleftWheel;
         MotorWheel frontrightWheel;
