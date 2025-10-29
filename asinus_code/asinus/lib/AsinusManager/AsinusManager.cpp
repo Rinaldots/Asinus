@@ -24,7 +24,6 @@ void AsinusManager::updateMotorFromPacket(int slaveId, int16_t speed100, uint16_
   m.id = slaveId;
   m.rawSpeed = speed100;
   m.speed = (float)speed100 / 100.0f;
-  // treat zero as unavailable if voltage field is zero in your protocol
   m.volt = (volt100 == 0) ? NAN : ((float)volt100 / 100.0f);
   m.slaveState = 0; // user code can set this from slave_state array if desired
   m.ts = nowMillis;

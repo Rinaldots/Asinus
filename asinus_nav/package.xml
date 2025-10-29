@@ -14,7 +14,7 @@
 
   <exec_depend>asinus_description</exec_depend>
   <exec_depend>asinus_gz</exec_depend>
-  <exec_depend>ros2_control_asinus</exec_depend>
+
   
   <!-- Navigation dependencies -->
   <exec_depend>navigation2</exec_depend>

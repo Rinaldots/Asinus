@@ -16,11 +16,7 @@ find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(robot_localization REQUIRED)
-find_package(rtabmap_ros REQUIRED)
-find_package(rtabmap_msgs REQUIRED)
-find_package(rtabmap_conversions REQUIRED)
-find_package(rtabmap_sync REQUIRED)
-find_package(rtabmap_viz REQUIRED)
+
 
 # Install launch files
 install(DIRECTORY

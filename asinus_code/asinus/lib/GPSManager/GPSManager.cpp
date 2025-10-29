@@ -185,8 +185,6 @@ void GPSManager::readGPS() {
     }
 }
 
-
-
 GPSTelemetry GPSManager::returnTelemetry() {
     update();
     GPSTelemetry gps;

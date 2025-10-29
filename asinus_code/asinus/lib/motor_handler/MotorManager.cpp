@@ -61,84 +61,23 @@ void MotorManager::processSerialCommands()
     if (Serial.available()) {
         String command = Serial.readStringUntil('\n');
 
-        if (command.startsWith("hover|")) {
-            command.remove(0, 6);
-
-            if (command.startsWith("all|")) {
-                command.remove(0, 4);
-                int numParsed = sscanf(command.c_str(), "%d|%d", &m_ispeedin, &m_istatein);
-                if (numParsed == 2) {
-                    for (size_t i = 0; i < motor_count_total; i++) {
-                        int motorId = motors_all[i];
-                        int speed = isMotorLeft(motorId) ? -m_ispeedin : m_ispeedin;
-                        m_motor_speed[i] = speed;
-                        m_slave_state[i] = m_istatein;
-                    }
-                } else {
-                    Serial.println("The command doesn't meet the criteria");
-                }
-            } else if (command.startsWith("right|")) {
-                command.remove(0, 6);
-                int numParsed = sscanf(command.c_str(), "%d|%d", &m_ispeedin, &m_istatein);
-                if (numParsed == 2) {
-                    for (size_t i = 0; i < motor_count_right; i++) {
-                        int motorId = motors_right[i];
-                        m_motor_speed[motorId - m_motorOffset] = m_ispeedin;
-                        m_slave_state[motorId - m_motorOffset] = m_istatein;
-                    }
-                } else {
-                    Serial.println("The command doesn't meet the criteria");
-                }
-            } else if (command.startsWith("left|")) {
-                command.remove(0, 5);
-                int numParsed = sscanf(command.c_str(), "%d|%d", &m_ispeedin, &m_istatein);
-                if (numParsed == 2) {
-                    for (size_t i = 0; i < motor_count_left; i++) {
-                        int motorId = motors_left[i];
-                        m_motor_speed[motorId - m_motorOffset] = -m_ispeedin;
-                        m_slave_state[motorId - m_motorOffset] = m_istatein;
-                    }
-                } else {
-                    Serial.println("The command doesn't meet the criteria");
-                }
+        if (command.startsWith("h|")) {
+            command.remove(0, 2);
+            int numParsed = sscanf(command.c_str(), "%d|%d|%d", &m_slaveidin, &m_ispeedin, &m_istatein);
+            if (numParsed == 3) {
+                int motorId = m_slaveidin;
+                int speed = isMotorLeft(motorId) ? -m_ispeedin : m_ispeedin;
+                m_motor_speed[motorId - m_motorOffset] = speed;
+                m_slave_state[motorId - m_motorOffset] = m_istatein;
             } else {
-                int numParsed = sscanf(command.c_str(), "%d|%d|%d", &m_slaveidin, &m_ispeedin, &m_istatein);
-                if (numParsed == 3) {
-                    int motorId = m_slaveidin;
-                    int speed = isMotorLeft(motorId) ? -m_ispeedin : m_ispeedin;
-                    m_motor_speed[motorId - m_motorOffset] = speed;
-                    m_slave_state[motorId - m_motorOffset] = m_istatein;
-                } else {
-                    Serial.println("The command doesn't meet the criteria");
-                }
+                
             }
-        } else if (command.startsWith("stop")) {
-            for (size_t i = 0; i < motor_count_total; i++) {
-                m_motor_speed[i] = 0;
-                m_slave_state[i] = m_istatein;
-            }
-        } else {
-            Serial.println("Command not hover/stop");
-            Serial.println(command);
         }
-
-#ifdef _DEBUG
-        for (size_t i = 0; i < motor_count_total; i++) {
-            Serial.print("Motor ");
-            Serial.print(motors_all[i]);
-            Serial.print(" Speed is set to ");
-            Serial.print(m_motor_speed[i]);
-            Serial.print(" Slave state is set to ");
-            Serial.println(m_slave_state[i]);
-        }
-#endif
     }
 }
 
 void MotorManager::parseCommand(String command)
 {
-    // Minimal parser example: "S 1 100" -> set motor 1 speed 100
-    // This is intentionally simple; the original project parses many commands.
     command.trim();
     if (command.length() == 0) return;
 
@@ -157,8 +96,6 @@ void MotorManager::parseCommand(String command)
 void MotorManager::sendMotorCommands()
 {
     unsigned long iNow = millis();
-
-#ifdef REMOTE_UARTBUS
     for (size_t i = 0; i < motor_count_port1; i++) {
         int motorId = motors_port1[i];
         int speed = m_motor_speed[motorId - m_motorOffset];
@@ -170,15 +107,7 @@ void MotorManager::sendMotorCommands()
         int speed = m_motor_speed[motorId - m_motorOffset];
         HoverSend(m_port2, (uint8_t)motorId, speed, (uint8_t)m_slave_state[motorId - m_motorOffset]);
     }
-
     m_iNext = iNow + SEND_MILLIS / 2;
-#else
-    // Non-REMOTE path not implemented in this manager; keep compatibility
-    int iSteer = 0;
-    int iSpeed = 0;
-    HoverSend(m_port1, iSteer, iSpeed, m_wState, m_wState);
-    m_iNext = iNow + SEND_MILLIS;
-#endif
 }
 
 void MotorManager::receiveMotorFeedback()
@@ -188,20 +117,12 @@ void MotorManager::receiveMotorFeedback()
     bool bReceived1 = false, bReceived2 = false;
 
     while ((bReceived1 = Receive(m_port1, fb))) {
-        //DEBUGT("millis", iNow - m_iLast);
-        //DEBUGT("iSpeed", m_iSpeed);
-        //HoverLog(fb);
-        // Update telemetry: port1 always updates motor index 0 (ID will be 1)
         asinusManager.updateMotorByIndex(0, fb.iSpeed, fb.iOdom, fb.iVolt, iNow);
         m_feedback1 = fb;
         m_iLast = iNow;
     }
 
     while ((bReceived2 = Receive(m_port2, fb))) {
-        //DEBUGT("millis", iNow - m_iLast);
-        //DEBUGT("iSpeed", m_iSpeed);
-        //HoverLog(fb);
-        // Update telemetry: port2 always updates motor index 1 (ID will be 2)
         asinusManager.updateMotorByIndex(1, fb.iSpeed, fb.iOdom, fb.iVolt, iNow);
         m_feedback2 = fb;
         m_iLast = iNow;

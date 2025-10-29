@@ -3,7 +3,7 @@
          type="asinus_hardware_interface::AsinusHardwareInterface"
          base_class_type="hardware_interface::SystemInterface">
     <description>
-        The asinus motors hardware interface for ros2_control
+        The Asinus hardware interface for ros2_control providing wheel state/command interfaces and sensor publishers.
     </description>
   </class>
 </library>

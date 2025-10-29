@@ -14,29 +14,20 @@ endif()
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-# --- Dependências Boost ---
-find_package(Boost REQUIRED COMPONENTS system thread)
-
-# --- Biblioteca do serviço serial ---
-ament_auto_add_library(
-  serial_port_service
-  SHARED
-  src/serial_port_service.cpp
-)
-
-# link Boost to the serial_port_service target using variables from FindBoost
-target_include_directories(serial_port_service PUBLIC ${Boost_INCLUDE_DIRS})
-target_link_libraries(serial_port_service PUBLIC ${Boost_LIBRARIES})
+# Boost (asio uses boost::system for older boost builds)
+find_package(Boost REQUIRED COMPONENTS system)
 
 # --- Biblioteca principal do plugin ---
+# Use explicit filename with extension to avoid ambiguous targets
 ament_auto_add_library(
   ${PROJECT_NAME}
   SHARED
   src/asinus_hardware_interface.cpp
+  src/async_serial.cpp
 )
 
-# Link the serial_port_service target into the main plugin library
-target_link_libraries(${PROJECT_NAME} PRIVATE serial_port_service)
+# Link Boost system library
+target_link_libraries(${PROJECT_NAME} Boost::system)
 
 # Exporta plugin para pluginlib
 pluginlib_export_plugin_description_file(hardware_interface asinus_hardware_interface.xml)
@@ -44,6 +35,7 @@ pluginlib_export_plugin_description_file(hardware_interface asinus_hardware_inte
 # --- Testes opcionais ---
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
+  
   ament_lint_auto_find_test_dependencies()
 endif()
 

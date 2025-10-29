@@ -27,6 +27,10 @@ public:
     // Imprime o status atual dos motores (se _DEBUG estiver ativado)
     void printStatus();
 
+    void processSerialCommands();
+
+    void sendMotorCommands();
+
 private:
     // Referências para as portas seriais
     HardwareSerial& m_port1;
@@ -61,7 +65,6 @@ private:
     static const size_t motor_count_left = 1;
     int motors_left[motor_count_left] = {2};
 
-    // Estado dos motores (movido de TestSpeed.ino)
     int m_motor_speed[motor_count_total];
     int m_slave_state[motor_count_total]; //
     int m_motorOffset;
@@ -73,9 +76,7 @@ private:
     int m_istatein;
 
     // Funções auxiliares privadas
-    void processSerialCommands();
     void parseCommand(String command);
-    void sendMotorCommands();
     void receiveMotorFeedback();
     bool isMotorLeft(int motorId); //
 

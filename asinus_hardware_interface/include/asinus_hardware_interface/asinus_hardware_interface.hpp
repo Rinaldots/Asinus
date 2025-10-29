@@ -16,15 +16,22 @@
 
 #include <cstddef>
 
+#include <mutex>
+
 #include "rclcpp/rclcpp.hpp"
 #include "hardware_interface/system_interface.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "pluginlib/class_list_macros.hpp"
-
-#include "serial_port_service.hpp"
 #include "motor_wheel.hpp"
+// sensor messages
+#include <sensor_msgs/msg/imu.hpp>
+#include <sensor_msgs/msg/nav_sat_fix.hpp>
+// async serial
+#include "asinus_hardware_interface/async_serial.hpp"
 
-#define TWO_WHEEL
+
+
+
 
 namespace asinus_hardware_interface
 {
@@ -32,25 +39,21 @@ namespace asinus_hardware_interface
     {
         struct HardwareConfig
         {
-            std::string frontleftWheelJointName = "front_left_wheel_joint";
-            std::string frontrightWheelJointName = "front_right_wheel_joint";
-            std::string backleftWheelJointName = "back_left_wheel_joint";
-            std::string backrightWheelJointName = "back_right_wheel_joint";
+            std::string typeName = "asinus_two_wheel";
+            std::string frontleftWheelJointName = "fl_wheel_joint";
+            std::string frontrightWheelJointName = "fr_wheel_joint";
+            std::string backleftWheelJointName = "bl_wheel_joint";
+            std::string backrightWheelJointName = "br_wheel_joint";
 
             float loopRate = 10.0;
             int encoderTicksPerRevolution = 1024;
-        };
-
-        struct SerialPortConfig
-        {
-            std::string device = "/dev/ttyUSB0";
-            int baudRate = 115200;
-            int timeout = 10;
+            std::string serial_device = "/dev/ttyUSB0";
+            unsigned int serial_baud = 115200;
         };
 
     public:
-        RCLCPP_SHARED_PTR_DEFINITIONS(AsinusHardwareInterface)
-
+    RCLCPP_SHARED_PTR_DEFINITIONS(AsinusHardwareInterface)
+        
         hardware_interface::CallbackReturn on_init(const hardware_interface::HardwareInfo &) override;
 
         hardware_interface::CallbackReturn on_configure(const rclcpp_lifecycle::State &) override;
@@ -65,32 +68,29 @@ namespace asinus_hardware_interface
 
         std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
 
-        hardware_interface::return_type read(const rclcpp::Time &, const rclcpp::Duration &) override;
+        hardware_interface::return_type read(const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
-        hardware_interface::return_type write(const rclcpp::Time &, const rclcpp::Duration &) override;
-#ifdef TWO_WHEEL
-        void TwoMotorWheelFeedbackCallback(TwoMotorWheelFeedback);
-#endif
-
-#ifdef FOUR_WHEEL
-        void FourMotorWheelFeedbackCallback(FourMotorWheelFeedback);
-#endif
+        hardware_interface::return_type write(const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
     private:
-        
-        rclcpp::Node::SharedPtr node_;
-        
-        SerialPortService serialPortService;
-
         HardwareConfig hardwareConfig;
-        SerialPortConfig serialPortConfig;
-        
-        std::mutex wheel_data_mutex_;
 
         MotorWheel frontleftWheel;
         MotorWheel frontrightWheel;
         MotorWheel backleftWheel;
         MotorWheel backrightWheel;
+
+    /* IMU and GPS telemetry and publishers */
+        IMU imu;
+        GPS gps;
+        rclcpp::Node::SharedPtr pub_node_;
+        rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_pub_;
+        rclcpp::Publisher<sensor_msgs::msg::NavSatFix>::SharedPtr gps_pub_;
+
+    // serial reader
+        std::unique_ptr<AsyncSerialReader> serial_reader_;
+        std::string serial_rx_buffer_;
+        std::mutex telemetry_mutex_;
 
         bool connect();
         bool disconnect();

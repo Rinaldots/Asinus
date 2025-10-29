@@ -47,17 +47,18 @@ def generate_launch_description():
         parameters=[robot_description],
     )
 
-    joint_state_broadcaster_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["joint_state_broadcaster", "-c", "/controller_manager"],
-    )
-
     robot_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["asinus_base_controller", "-c", "/controller_manager"]
+        arguments=["diff_base_controller", "-c", "/controller_manager"]
     )
+
+    hardware_interface_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["hardware_interface", "-c", "/controller_manager"]
+    )
+    
 
     rviz_node = Node(
         package="rviz2",
@@ -87,7 +88,6 @@ def generate_launch_description():
     return LaunchDescription([
         control_node,
         robot_state_pub_node,
-        joint_state_broadcaster_spawner,
         robot_controller_spawner,
         rviz_node,
         # joy_node,

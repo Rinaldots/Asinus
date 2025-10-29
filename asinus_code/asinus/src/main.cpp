@@ -33,7 +33,7 @@ void setup(void)
   //setup_icm();
 }
 
-#define UpdateRate 100 // Update at 100hz
+#define UpdateRate 30 // Update at 100hz
 void loop(void)
 {
   
@@ -42,15 +42,11 @@ void loop(void)
 
   motorManager.update();
 
+  asinusManager.printCompactSerial();
 
-  // Periodic debug print
-  
-  unsigned long now = millis();
-  if (now - lastDebugPrint >= DEBUG_INTERVAL) {
-    //motorManager.printStatus();
-    asinusManager.printCompactSerial();
-    lastDebugPrint = now;
-  }
+  motorManager.processSerialCommands();
+
+  motorManager.sendMotorCommands();
 
   delay(1000 / UpdateRate);
 }

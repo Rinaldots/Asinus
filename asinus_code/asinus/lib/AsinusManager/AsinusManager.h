@@ -53,10 +53,22 @@ public:
   void printDebug();
   
   // Compact serial output for ROS2 (CSV-like format, easy to parse)
+  void setupRos2();
+
   void printCompactSerial();
+
+  void setupPublishers();
+
+  void setupSubscribers();
+
+  void publishCallbacks();
+
+  void subscribeCallbacks();
+
 
   IMUTelemetry imu;
   GPSTelemetry gps;
+  
 
 private:
   std::vector<MotorTelemetry> _motors;
