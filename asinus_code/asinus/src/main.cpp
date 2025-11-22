@@ -31,6 +31,7 @@ void setup(void)
   //relayManager.begin();
   //relayManager.turnOn(0); // Liga o relé 1
   //setup_icm();
+  
 }
 
 #define UpdateRate 30 // Update at 100hz

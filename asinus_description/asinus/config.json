@@ -3,5 +3,9 @@
     "outputFormat": "urdf",
     "packageName": "asinus_description/asinus",
     "robotName": "asinus_robot",
-    "assemblyName": "asinus_two_wheel"
+    "merge_stls": true,
+    "add_dummy_base_link": true,
+    "assemblyName": "asinus_two_wheel",
+    "simplify_stls": true,
+    "max_stl_size": 1
 }

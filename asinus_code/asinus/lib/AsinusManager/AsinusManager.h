@@ -17,11 +17,19 @@ struct MotorTelemetry {
 
 struct IMUTelemetry {
   float accel_x=0, accel_y=0, accel_z=0;
-  float gyro_x=0, gyro_y=0, gyro_z=0;
-  float mag_x=0, mag_y=0, mag_z=0;
+  float gyro_x=0,  gyro_y=0,  gyro_z=0;
+  float mag_x=0,   mag_y=0,   mag_z=0;
+
+  // DMP quaternion
+  float qw=1, qx=0, qy=0, qz=0;
+
+  // Converted YPR (radians)
+  float yaw=0, pitch=0, roll=0;
+
   float temp = NAN;
   unsigned long ts = 0;
 };
+
 
 struct GPSTelemetry {
   double lat = NAN, lng = NAN;

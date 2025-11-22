@@ -31,6 +31,9 @@ namespace asinus_hardware_interface
         float gyro_x=0, gyro_y=0, gyro_z=0;
         float mag_x=0, mag_y=0, mag_z=0;
         float temp = NAN;
+        float qx = NAN, qy = NAN, qz = NAN, qw = NAN;
+        float vx = NAN, wz = NAN;
+        float yaw = NAN, pitch = NAN, roll = NAN;
         unsigned long ts = 0;
     };
 
@@ -52,6 +55,9 @@ namespace asinus_hardware_interface
             imu.mag_z = mz;
             imu.temp = temperature;
             imu.ts = timestamp;
+        }
+        void setTelemetry(const IMUTelemetry &data) {
+            imu = data;
         }
         IMUTelemetry getTelemetry() {
             return imu;
@@ -104,6 +110,7 @@ namespace asinus_hardware_interface
         int32_t encoderHighWrap;
 
         double position = 0.0;
+        double positionPrevious = 0.0;
         double velocity = 0.0;
         double command = 0;
         

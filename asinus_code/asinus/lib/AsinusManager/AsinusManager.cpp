@@ -133,13 +133,10 @@ void AsinusManager::printDebug() {
 }
 
 void AsinusManager::printCompactSerial() {
-  // Compact format optimized for ROS2 parsing
-  // Format: ASINUS,ts,m0_id,m0_spd,m0_odom,m0_volt,m1_id,m1_spd,m1_odom,m1_volt,ax,ay,az,gx,gy,gz,mx,my,mz,temp,lat,lng,hdop
-  
   Serial.print("ASINUS,");
   Serial.print(millis());
-  
-  // Motor telemetry (2 motors)
+
+  // Motores (mantido igual)
   for (size_t i = 0; i < 2; i++) {
     Serial.print(",");
     if (i < _motors.size()) {
@@ -150,96 +147,77 @@ void AsinusManager::printCompactSerial() {
       Serial.print(",");
       Serial.print(m.odom);
       Serial.print(",");
-      if (!isnan(m.volt)) {
-        Serial.print(m.volt, 2);
-      } else {
-        Serial.print("0.00");
-      }
+      if (!isnan(m.volt)) Serial.print(m.volt, 2);
+      else Serial.print("0.00");
     } else {
       Serial.print("0,0.00,0,0.00");
     }
   }
-  
-  // IMU telemetry
+
+  // IMU accel
   Serial.print(",");
   Serial.print(imu.accel_x, 3);
   Serial.print(",");
   Serial.print(imu.accel_y, 3);
   Serial.print(",");
   Serial.print(imu.accel_z, 3);
+
+  // Gyro
   Serial.print(",");
   Serial.print(imu.gyro_x, 3);
   Serial.print(",");
   Serial.print(imu.gyro_y, 3);
   Serial.print(",");
   Serial.print(imu.gyro_z, 3);
+
+  // Mag
   Serial.print(",");
   Serial.print(imu.mag_x, 2);
   Serial.print(",");
   Serial.print(imu.mag_y, 2);
   Serial.print(",");
   Serial.print(imu.mag_z, 2);
+
+  // Temp
   Serial.print(",");
-  if (!isnan(imu.temp)) {
-    Serial.print(imu.temp, 2);
-  } else {
-    Serial.print("0.00");
-  }
-  
-  // GPS telemetry
+  if (!isnan(imu.temp)) Serial.print(imu.temp, 2);
+  else Serial.print("0.00");
+
+  // GPS
   Serial.print(",");
-  if (!isnan(gps.lat)) {
-    Serial.print(gps.lat, 6);
-  } else {
-    Serial.print("0.000000");
-  }
+  if (!isnan(gps.lat)) Serial.print(gps.lat, 6);
+  else Serial.print("0.000000");
   Serial.print(",");
-  if (!isnan(gps.lng)) {
-    Serial.print(gps.lng, 6);
-  } else {
-    Serial.print("0.000000");
-  }
+  if (!isnan(gps.lng)) Serial.print(gps.lng, 6);
+  else Serial.print("0.000000");
   Serial.print(",");
-  if (!isnan(gps.hdop)) {
-    Serial.print(gps.hdop, 2);
-  } else {
-    Serial.print("99.99");
+  if (!isnan(gps.hdop)) Serial.print(gps.hdop, 2);
+  else Serial.print("99.99");
+
+
+  Serial.print(",");
+  Serial.print(imu.qx, 4);
+  Serial.print(",");
+  Serial.print(imu.qy, 4);
+  Serial.print(",");
+  Serial.print(imu.qz, 4);
+  Serial.print(",");
+  Serial.print(imu.qw, 4);
+
+
+  float vx = 0.0;
+  float wz = imu.gyro_z; // rad/s já está correto
+
+
+  if (_motors.size() >= 2) {
+    vx = (_motors[0].speed + _motors[1].speed) / 2.0f;
   }
-  
+
+  Serial.print(",");
+  Serial.print(vx, 3);
+  Serial.print(",");
+  Serial.print(wz, 3);
+
   Serial.println();
 }
 
-/*
- CSV token mapping for printCompactSerial() output:
- Format: ASINUS,ts,m0_id,m0_spd,m0_odom,m0_volt,m1_id,m1_spd,m1_odom,m1_volt,ax,ay,az,gx,gy,gz,mx,my,mz,temp,lat,lng,hdop
-
- Token indices (0-based) and meaning:
- [0]  "ASINUS"        -> literal prefix string
- [1]  ts              -> timestamp in milliseconds (unsigned long / integer)
- [2]  m0_id           -> motor 0 id (integer)
- [3]  m0_spd          -> motor 0 speed (float, printed with 2 decimals)   e.g.  12.34
- [4]  m0_odom         -> motor 0 odometer / encoder count (integer)
- [5]  m0_volt         -> motor 0 voltage (float, printed with 2 decimals) e.g. 12.34 (or "0.00" if N/A)
- [6]  m1_id           -> motor 1 id (integer)
- [7]  m1_spd          -> motor 1 speed (float, 2 decimals)
- [8]  m1_odom         -> motor 1 odometer (integer)
- [9]  m1_volt         -> motor 1 voltage (float, 2 decimals)
- [10] ax              -> IMU accel X (float, 3 decimals) e.g. 0.123
- [11] ay              -> IMU accel Y (float, 3 decimals)
- [12] az              -> IMU accel Z (float, 3 decimals)
- [13] gx              -> IMU gyro X (float, 3 decimals)
- [14] gy              -> IMU gyro Y (float, 3 decimals)
- [15] gz              -> IMU gyro Z (float, 3 decimals)
- [16] mx              -> IMU mag X (float, 2 decimals)
- [17] my              -> IMU mag Y (float, 2 decimals)
- [18] mz              -> IMU mag Z (float, 2 decimals)
- [19] temp            -> IMU temperature (float, 2 decimals) or "0.00" if N/A
- [20] lat             -> GPS latitude (float, 6 decimals) or "0.000000" if N/A
- [21] lng             -> GPS longitude (float, 6 decimals) or "0.000000" if N/A
- [22] hdop            -> GPS hdop (float, 2 decimals) or "99.99" if N/A
-
- Notes:
- - Fields are comma-separated, line terminated with newline.
- - Consumer/parsers should tolerate missing fields by checking token count and using defaults when tokens are "0.00"/"0"/"99.99".
- - Numeric strings may be converted with atof/strtod/stoi as needed; beware of locale when parsing decimals.
-*/

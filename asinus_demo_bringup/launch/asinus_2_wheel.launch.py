@@ -19,7 +19,8 @@ from launch_ros.actions import Node
 from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.parameter_descriptions import ParameterValue
-
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 def generate_launch_description():
 
     urdf_file_name = "asinus_2_wheel.urdf.xacro"
@@ -53,12 +54,29 @@ def generate_launch_description():
         arguments=["diff_base_controller", "-c", "/controller_manager"]
     )
 
-    hardware_interface_spawner = Node(
+    joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["hardware_interface", "-c", "/controller_manager"]
+        arguments=["joint_state_broadcaster", "-c", "/controller_manager"],
     )
-    
+
+    lidar_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([
+                FindPackageShare('cspc_lidar'),
+                'launch',
+                'lidar.launch.py'
+            ])
+        )
+    )
+
+    kinect = Node(
+                package="kinect_ros2",
+                executable="kinect_ros2_node",
+                name="kinect_ros2",
+                namespace="kinect",
+            )
+
 
     rviz_node = Node(
         package="rviz2",
@@ -67,29 +85,12 @@ def generate_launch_description():
         arguments=["-d", rviz_config_file],
     )
 
-    joy_node = Node(
-        package='joy', executable='joy_node', name='joy_node',
-        parameters=[{
-            'deadzone': 0.05,
-            'autorepeat_rate': 30.0
-        }],
-    )
-
-    teleop_twist_joy_node = Node(
-        package='teleop_twist_joy',
-        executable='teleop_node',
-        name='teleop_twist_joy_node',
-        parameters=[teleop_twist_joy_config_file],
-        remappings=[
-            ('/cmd_vel', '/asinus_base_controller/cmd_vel_unstamped'),
-        ]
-    )
-
     return LaunchDescription([
         control_node,
         robot_state_pub_node,
+        joint_state_broadcaster_spawner,
         robot_controller_spawner,
         rviz_node,
-        # joy_node,
-        # teleop_twist_joy_node,
+        kinect,
+        lidar_launch,
     ])

@@ -78,7 +78,7 @@ private:
     // Funções auxiliares privadas
     void parseCommand(String command);
     void receiveMotorFeedback();
-    bool isMotorLeft(int motorId); //
+    
 
     MotorTelemetry motor_1;
     MotorTelemetry motor_2;

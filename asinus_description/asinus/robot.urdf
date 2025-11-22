@@ -40,6 +40,7 @@
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <mass value="1e-6"/>
+      <!-- Use small but non-zero inertia to avoid singularities in physics solvers -->
       <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9"/>
     </inertial>
   </link>
@@ -66,7 +67,7 @@
   </joint>
   <!-- Frame imu (dummy link + fixed joint) -->
   <link name="imu">
-    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 -0 0"/>
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <mass value="1e-6"/>
@@ -74,7 +75,7 @@
     </inertial>
   </link>
   <joint name="imu_frame" type="fixed">
-    <origin xyz="-0.1575 -0.0534856 0.298" rpy="3.14159 0 0"/>
+    <origin xyz="-0.1575 -0.0534856 0.298" rpy="-1.8735e-16 3.747e-16 -3.14159"/>
     <parent link="frame"/>
     <child link="imu"/>
     <axis xyz="0 0 0"/>

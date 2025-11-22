@@ -31,6 +31,9 @@ void MotorManager::begin(long baud, int rx1, int tx1, int rx2, int tx2)
     HoverSetupEsp32(m_port1, baud, rx1, tx1);
     HoverSetupEsp32(m_port2, baud, rx2, tx2);
     m_nextSendTime = millis() + SEND_MILLIS;
+    delay(1000); // wait for motors to initialize
+    //HoverSendConfig(m_port1, (uint8_t)1, (uint8_t)3);
+    //HoverSendConfig(m_port2, (uint8_t)2, (uint8_t)0, (float)65535.0, (float)65535.0);
 }
 
 // Main update loop — lightweight orchestration
@@ -66,7 +69,7 @@ void MotorManager::processSerialCommands()
             int numParsed = sscanf(command.c_str(), "%d|%d|%d", &m_slaveidin, &m_ispeedin, &m_istatein);
             if (numParsed == 3) {
                 int motorId = m_slaveidin;
-                int speed = isMotorLeft(motorId) ? -m_ispeedin : m_ispeedin;
+                int speed = m_ispeedin;
                 m_motor_speed[motorId - m_motorOffset] = speed;
                 m_slave_state[motorId - m_motorOffset] = m_istatein;
             } else {
@@ -96,16 +99,20 @@ void MotorManager::parseCommand(String command)
 void MotorManager::sendMotorCommands()
 {
     unsigned long iNow = millis();
+    if ((long)(iNow - m_iNext ) < 0) {
+        return; // not time yet
+    }
     for (size_t i = 0; i < motor_count_port1; i++) {
         int motorId = motors_port1[i];
+        m_motor_speed[motorId - m_motorOffset] = -m_motor_speed[motorId - m_motorOffset];
         int speed = m_motor_speed[motorId - m_motorOffset];
-        HoverSend(m_port1, (uint8_t)motorId, speed, (uint8_t)m_slave_state[motorId - m_motorOffset]);
+        HoverSend(m_port1, (uint8_t)motorId, speed, (uint8_t)32);
     }
 
     for (size_t i = 0; i < motor_count_port2; i++) {
-        int motorId = motors_port2[i];
+        int motorId = motors_port2[i];     
         int speed = m_motor_speed[motorId - m_motorOffset];
-        HoverSend(m_port2, (uint8_t)motorId, speed, (uint8_t)m_slave_state[motorId - m_motorOffset]);
+        HoverSend(m_port2, (uint8_t)motorId, speed, (uint8_t)32);
     }
     m_iNext = iNow + SEND_MILLIS / 2;
 }
@@ -117,6 +124,8 @@ void MotorManager::receiveMotorFeedback()
     bool bReceived1 = false, bReceived2 = false;
 
     while ((bReceived1 = Receive(m_port1, fb))) {
+        fb.iSpeed = -fb.iSpeed;
+        fb.iOdom = -fb.iOdom;
         asinusManager.updateMotorByIndex(0, fb.iSpeed, fb.iOdom, fb.iVolt, iNow);
         m_feedback1 = fb;
         m_iLast = iNow;
@@ -127,13 +136,5 @@ void MotorManager::receiveMotorFeedback()
         m_feedback2 = fb;
         m_iLast = iNow;
     }
-}
-
-bool MotorManager::isMotorLeft(int motorId)
-{
-    for (size_t i = 0; i < motor_count_left; ++i) {
-        if (motors_left[i] == motorId) return true;
-    }
-    return false;
 }
 

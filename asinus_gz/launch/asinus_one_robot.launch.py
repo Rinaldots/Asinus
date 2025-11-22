@@ -79,7 +79,7 @@ def generate_launch_description():
             [
                 FindPackageShare("asinus_demo_bringup"),
                 "config",
-                "asinus_controllers.yaml",
+                "asinus_controllers_2_wheel.yaml",
             ]
         )
 
@@ -91,21 +91,6 @@ def generate_launch_description():
         arguments=['-topic', 'robot_description', '-name',
                    'diff_drive', '-allow_renaming', 'true',
                    '-z', '2.0'],
-    )
-
-    joint_state_broadcaster_spawner = Node(
-        package='controller_manager',
-        executable='spawner',
-        arguments=['joint_state_broadcaster'],
-    )
-    diffbot_base_controller_spawner = Node(
-        package='controller_manager',
-        executable='spawner',
-        arguments=[
-            'asinus_base_controller',
-            '--param-file',
-            robot_controllers,
-            ],
     )
 
 
@@ -150,7 +135,7 @@ def generate_launch_description():
             description='If true, use simulated clock'),
         DeclareLaunchArgument(
             'world_file',
-            default_value='worlds/farm.sdf',
+            default_value='worlds/campo.sdf',
             description='World file to load in Gazebo'),
         DeclareLaunchArgument(
             'namespace',
@@ -165,18 +150,6 @@ def generate_launch_description():
                                        'launch',
                                        'gz_sim.launch.py'])]),
             launch_arguments=[('gz_args', [' -r -v 1 ', PathJoinSubstitution([pkg_asinus_gz, LaunchConfiguration('world_file')])])],),
-        RegisterEventHandler(
-            event_handler=OnProcessExit(
-                target_action=gz_spawn_entity,
-                on_exit=[joint_state_broadcaster_spawner],
-            )
-        ),
-        RegisterEventHandler(
-            event_handler=OnProcessExit(
-                target_action=joint_state_broadcaster_spawner,
-                on_exit=[diffbot_base_controller_spawner],
-            )
-        ),
         bridge,
         depthimage_to_pointcloud2,
         node_robot_state_publisher,

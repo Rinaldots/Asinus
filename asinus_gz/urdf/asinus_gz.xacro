@@ -4,9 +4,11 @@
   <xacro:arg name="prefix" default="" />
   <xacro:arg name="use_mock_hardware" default="true" />
 
-  <!-- Include the assembled robot (which already brings robot.urdf and control.xacro) -->
-  <xacro:include filename="$(find asinus_description)/asinus/asinus.urdf.xacro" />
-  <!-- Gazebo / ros_gz specific bits -->
+  <xacro:include filename="$(find asinus_description)/asinus/robot_2_wheel.urdf" />
+
+  <!-- Import diffbot ros2_control description -->
+  <xacro:include filename="$(find asinus_description)/asinus/control_2_wheel.xacro" />
+
   <xacro:include filename="$(find asinus_gz)/urdf/include/gazebo.urdf.xacro" />
 
   

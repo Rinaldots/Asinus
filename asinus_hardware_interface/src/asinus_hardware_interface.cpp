@@ -16,6 +16,12 @@
 // sensor messages
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
+#include <sensor_msgs/msg/magnetic_field.hpp>
+#include <nav_msgs/msg/odometry.hpp>
+#include <geometry_msgs/msg/quaternion_stamped.hpp>
+#include <cmath>
+#include <vector>
+#include <limits>
 
 
 namespace asinus_hardware_interface
@@ -30,6 +36,11 @@ namespace asinus_hardware_interface
         auto it = info.hardware_parameters.find("typeName");
         if (it != info.hardware_parameters.end()) {
             hardwareConfig.typeName = it->second;
+        } else {
+            RCLCPP_FATAL(
+                rclcpp::get_logger("AsinusHardwareInterface"),
+                "Missing required hardware parameter 'typeName' (expected 'asinus_two_wheel' or 'asinus_four_wheel').");
+            return hardware_interface::CallbackReturn::ERROR;
         }
 
         it = info.hardware_parameters.find("front_left_wheel_joint_name");
@@ -62,9 +73,38 @@ namespace asinus_hardware_interface
         if (it != info.hardware_parameters.end()) {
             hardwareConfig.encoderTicksPerRevolution = std::stoi(it->second);
         }
+        it = info.hardware_parameters.find("serial_baud");
+        if (it != info.hardware_parameters.end()) {
+            hardwareConfig.serial_baud = static_cast<unsigned int>(std::stoul(it->second));
+        }
+
+        it = info.hardware_parameters.find("wheel_radius_m");
+        if (it != info.hardware_parameters.end()) {
+            hardwareConfig.wheelRadius = std::stod(it->second);
+        }
+        wheel_radius_m_ = hardwareConfig.wheelRadius;
+
+        it = info.hardware_parameters.find("wheel_base_m");
+        if (it != info.hardware_parameters.end()) {
+            hardwareConfig.wheelBase = std::stod(it->second);
+        }
+        wheel_base_m_ = hardwareConfig.wheelBase;
+        
+
 
     if (hardwareConfig.typeName == "asinus_four_wheel")
     {
+    if (hardwareConfig.frontleftWheelJointName.empty() ||
+        hardwareConfig.frontrightWheelJointName.empty() ||
+        hardwareConfig.backleftWheelJointName.empty() ||
+        hardwareConfig.backrightWheelJointName.empty())
+    {
+        RCLCPP_FATAL(
+            rclcpp::get_logger("AsinusHardwareInterface"),
+            "Four-wheel hardware requires all wheel joint names to be set.");
+        return hardware_interface::CallbackReturn::ERROR;
+    }
+
     frontleftWheel = MotorWheel(hardwareConfig.frontleftWheelJointName, hardwareConfig.encoderTicksPerRevolution);
     frontrightWheel = MotorWheel(hardwareConfig.frontrightWheelJointName, hardwareConfig.encoderTicksPerRevolution);
     backleftWheel = MotorWheel(hardwareConfig.backleftWheelJointName, hardwareConfig.encoderTicksPerRevolution);
@@ -72,8 +112,25 @@ namespace asinus_hardware_interface
     }
     else if(hardwareConfig.typeName == "asinus_two_wheel")
     {
+    if (hardwareConfig.backleftWheelJointName.empty() ||
+        hardwareConfig.backrightWheelJointName.empty())
+    {
+        RCLCPP_FATAL(
+            rclcpp::get_logger("AsinusHardwareInterface"),
+            "Two-wheel hardware requires back left/right wheel joint names to be set.");
+        return hardware_interface::CallbackReturn::ERROR;
+    }
+
     backleftWheel = MotorWheel(hardwareConfig.backleftWheelJointName, hardwareConfig.encoderTicksPerRevolution);
     backrightWheel = MotorWheel(hardwareConfig.backrightWheelJointName, hardwareConfig.encoderTicksPerRevolution);
+    }
+    else
+    {
+    RCLCPP_FATAL(
+        rclcpp::get_logger("AsinusHardwareInterface"),
+        "Unknown hardware typeName '%s'. Expected 'asinus_two_wheel' or 'asinus_four_wheel'.",
+        hardwareConfig.typeName.c_str());
+    return hardware_interface::CallbackReturn::ERROR;
     }
 
         for (const hardware_interface::ComponentInfo & joint : info.joints)
@@ -133,6 +190,14 @@ namespace asinus_hardware_interface
     std::vector<hardware_interface::StateInterface> AsinusHardwareInterface::export_state_interfaces()
     {
         std::vector<hardware_interface::StateInterface> state_interfaces;
+        RCLCPP_INFO(
+            rclcpp::get_logger("AsinusHardwareInterface"),
+            "export_state_interfaces called, typeName='%s', fl='%s', fr='%s', bl='%s', br='%s'",
+            hardwareConfig.typeName.c_str(),
+            frontleftWheel.name.c_str(),
+            frontrightWheel.name.c_str(),
+            backleftWheel.name.c_str(),
+            backrightWheel.name.c_str());
         if (hardwareConfig.typeName == "asinus_four_wheel"){
         state_interfaces.emplace_back(hardware_interface::StateInterface(frontleftWheel.name, hardware_interface::HW_IF_POSITION, &frontleftWheel.position));
         state_interfaces.emplace_back(hardware_interface::StateInterface(frontleftWheel.name, hardware_interface::HW_IF_VELOCITY, &frontleftWheel.velocity));
@@ -184,10 +249,14 @@ namespace asinus_hardware_interface
             pub_node_ = rclcpp::Node::make_shared("asinus_hardware_interface_pubs");
         }
 
-        imu_pub_ = pub_node_->create_publisher<sensor_msgs::msg::Imu>("imu/data_raw", rclcpp::QoS(10));
-        gps_pub_ = pub_node_->create_publisher<sensor_msgs::msg::NavSatFix>("gps/fix", rclcpp::QoS(10));
+    imu_pub_ = pub_node_->create_publisher<sensor_msgs::msg::Imu>("imu/data_raw", rclcpp::QoS(10));
+    gps_pub_ = pub_node_->create_publisher<sensor_msgs::msg::NavSatFix>("gps/fix", rclcpp::QoS(10));
+    mag_pub_ = pub_node_->create_publisher<sensor_msgs::msg::MagneticField>("imu/mag", rclcpp::QoS(10));
+    odom_pub_ = pub_node_->create_publisher<nav_msgs::msg::Odometry>("odom", rclcpp::QoS(20));
+    quat_pub_ = pub_node_->create_publisher<geometry_msgs::msg::QuaternionStamped>("imu/orientation", rclcpp::QoS(10));
+    battery_pub_ = pub_node_->create_publisher<sensor_msgs::msg::BatteryState>("battery/state", rclcpp::QoS(10));
 
-        RCLCPP_INFO(rclcpp::get_logger("AsinusHardwareInterface"), "IMU and GPS publishers initialized.");
+    RCLCPP_INFO(rclcpp::get_logger("AsinusHardwareInterface"), "IMU, GPS, Magnetic field, Odometry, Quaternion and Battery publishers initialized.");
 
         try {
             //RCLCPP_INFO(rclcpp::get_logger("AsinusHardwareInterface"), "Starting async serial reader on %s @ %u", hardwareConfig.serial_device.c_str(), hardwareConfig.serial_baud);
@@ -293,6 +362,34 @@ namespace asinus_hardware_interface
                                     // ignore parse errors for IMU
                                 }
                             }
+
+                            // Optional quaternion + velocity tokens
+                            if (toks.size() > 25) {
+                                try {
+                                    std::lock_guard<std::mutex> lk(this->telemetry_mutex_);
+                                    IMUTelemetry t = this->imu.getTelemetry();
+                                    t.qx = std::stof(toks[22]);
+                                    t.qy = std::stof(toks[23]);
+                                    t.qz = std::stof(toks[24]);
+                                    t.qw = std::stof(toks[25]);
+
+                                    if (toks.size() > 26) {
+                                        t.vx = std::stof(toks[26]);
+                                    }
+                                    if (toks.size() > 27) {
+                                        t.wz = std::stof(toks[27]);
+                                    }
+                                    if (toks.size() > 30) {
+                                        t.yaw = std::stof(toks[28]);
+                                        t.pitch = std::stof(toks[29]);
+                                        t.roll = std::stof(toks[30]);
+                                    }
+
+                                    this->imu.setTelemetry(t);
+                                } catch (...) {
+                                    // ignore parse errors for quaternion/velocity tokens
+                                }
+                            }
                         }
                     } catch (const std::exception &e) {
                         RCLCPP_WARN(rclcpp::get_logger("AsinusHardwareInterface"), "Failed to parse serial line: %s", e.what());
@@ -348,61 +445,200 @@ namespace asinus_hardware_interface
         frontrightWheel.velocity = (frontrightWheel.position - frontrightlastPosition) / period.seconds();
 
         double backleftlastPosition = backleftWheel.position;
-        backleftWheel.encoderTicks = -backleftWheel.telemetry.odom;
+        backleftWheel.encoderTicks = backleftWheel.telemetry.odom;
         backleftWheel.position = backleftWheel.calculateEncoderAngle();
         backleftWheel.velocity = (backleftWheel.position - backleftlastPosition) / period.seconds();
 
         double backrightlastPosition = backrightWheel.position;
-        // sensor hall ta invertido
         backrightWheel.encoderTicks = backrightWheel.telemetry.odom;
         backrightWheel.position = backrightWheel.calculateEncoderAngle();
         backrightWheel.velocity = (backrightWheel.position - backrightlastPosition) / period.seconds();
 
-        //std::cerr<<"debug positions: BL="<<backleftWheel.telemetry.odom<<" BR="<<backrightWheel.telemetry.odom<<std::endl;
-        //std::cerr<<"debug velocities: BL="<<backleftWheel.velocity<<" BR="<<backrightWheel.velocity<<std::endl;
-        // Publish IMU data if available
-            if (imu_pub_ && pub_node_) {
-                sensor_msgs::msg::Imu imu_msg;
-                imu_msg.header.stamp = time;
-                imu_msg.header.frame_id = "imu_link";
-                IMUTelemetry t_imu;
-                {
-                    std::lock_guard<std::mutex> lk(this->telemetry_mutex_);
-                    t_imu = imu.getTelemetry();
+        const double delta_left = (backleftWheel.position - backleftlastPosition) * wheel_radius_m_;
+        const double delta_right = (backrightWheel.position - backrightlastPosition) * wheel_radius_m_;
+        const double delta_s = (delta_right + delta_left) / 2.0;
+        double delta_theta = 0.0;
+        if (wheel_base_m_ > 1e-6) {
+            delta_theta = (delta_right - delta_left) / wheel_base_m_;
+        }
+        const double yaw_mid = odom_yaw_ + delta_theta / 2.0;
+        odom_x_ += delta_s * std::cos(yaw_mid);
+        odom_y_ += delta_s * std::sin(yaw_mid);
+        odom_yaw_ = normalize_angle(odom_yaw_ + delta_theta);
+
+        const double v_left = backleftWheel.velocity;
+        const double v_right = backrightWheel.velocity;
+        const double linear_left = v_left * wheel_radius_m_;
+        const double linear_right = v_right * wheel_radius_m_;
+        const double vx = (linear_right + linear_left) / 2.0;
+        double wz = 0.0;
+        if (wheel_base_m_ > 1e-6) {
+            wz = (linear_right - linear_left) / wheel_base_m_;
+        }
+
+        IMUTelemetry t_imu;
+        {
+            std::lock_guard<std::mutex> lk(this->telemetry_mutex_);
+            t_imu = imu.getTelemetry();
+        }
+        const rclcpp::Time now = rclcpp::Clock().now();
+
+        if (imu_pub_ && pub_node_) {
+            sensor_msgs::msg::Imu imu_msg;
+            imu_msg.header.stamp = now;
+            imu_msg.header.frame_id = "imu";
+            imu_msg.orientation.w = 1.0;
+            imu_msg.linear_acceleration.x = t_imu.accel_x;
+            imu_msg.linear_acceleration.y = t_imu.accel_y;
+            imu_msg.linear_acceleration.z = t_imu.accel_z;
+            imu_msg.angular_velocity.x = t_imu.gyro_x;
+            imu_msg.angular_velocity.y = t_imu.gyro_y;
+            imu_msg.angular_velocity.z = t_imu.gyro_z;
+
+            const bool has_quaternion = !std::isnan(t_imu.qx) && !std::isnan(t_imu.qy) &&
+                                        !std::isnan(t_imu.qz) && !std::isnan(t_imu.qw);
+            if (has_quaternion) {
+                imu_msg.orientation.x = t_imu.qx;
+                imu_msg.orientation.y = t_imu.qy;
+                imu_msg.orientation.z = t_imu.qz;
+                imu_msg.orientation.w = t_imu.qw;
+            }
+            imu_msg.orientation_covariance[0] = has_quaternion ? 1e-3 : -1.0;
+            imu_msg.orientation_covariance[4] = has_quaternion ? 1e-3 : 0.0;
+            imu_msg.orientation_covariance[8] = has_quaternion ? 1e-3 : 0.0;
+            imu_msg.angular_velocity_covariance[0] = 1e-3;
+            imu_msg.angular_velocity_covariance[4] = 1e-3;
+            imu_msg.angular_velocity_covariance[8] = 1e-3;
+            imu_msg.linear_acceleration_covariance[0] = 1e-2;
+            imu_msg.linear_acceleration_covariance[4] = 1e-2;
+            imu_msg.linear_acceleration_covariance[8] = 1e-2;
+
+            imu_pub_->publish(imu_msg);
+
+            if (mag_pub_) {
+                sensor_msgs::msg::MagneticField mag_msg;
+                mag_msg.header = imu_msg.header;
+                constexpr double micro_tesla_to_tesla = 1e-6;
+                if (!std::isnan(t_imu.mag_x)) {
+                    mag_msg.magnetic_field.x = t_imu.mag_x * micro_tesla_to_tesla;
                 }
-                imu_msg.linear_acceleration.x = t_imu.accel_x;
-                imu_msg.linear_acceleration.y = t_imu.accel_y;
-                imu_msg.linear_acceleration.z = t_imu.accel_z;
-                imu_msg.angular_velocity.x = t_imu.gyro_x;
-                imu_msg.angular_velocity.y = t_imu.gyro_y;
-                imu_msg.angular_velocity.z = t_imu.gyro_z;
-                // orientation unknown - leave as default (0,0,0,1)
-                imu_pub_->publish(imu_msg);
+                if (!std::isnan(t_imu.mag_y)) {
+                    mag_msg.magnetic_field.y = t_imu.mag_y * micro_tesla_to_tesla;
+                }
+                if (!std::isnan(t_imu.mag_z)) {
+                    mag_msg.magnetic_field.z = t_imu.mag_z * micro_tesla_to_tesla;
+                }
+                mag_msg.magnetic_field_covariance[0] = -1.0;
+                mag_pub_->publish(mag_msg);
+            }
+
+            if (quat_pub_ && has_quaternion) {
+                geometry_msgs::msg::QuaternionStamped qs;
+                qs.header = imu_msg.header;
+                qs.quaternion = imu_msg.orientation;
+                quat_pub_->publish(qs);
+            }
+        }
+
+        if (odom_pub_) {
+            nav_msgs::msg::Odometry odom_msg;
+            odom_msg.header.stamp = now;
+            odom_msg.header.frame_id = "odom";
+            odom_msg.child_frame_id = "base_link";
+            odom_msg.pose.pose.position.x = odom_x_;
+            odom_msg.pose.pose.position.y = odom_y_;
+            odom_msg.pose.pose.position.z = 0.0;
+
+            if (!std::isnan(t_imu.qx) && !std::isnan(t_imu.qy) &&
+                !std::isnan(t_imu.qz) && !std::isnan(t_imu.qw)) {
+                odom_msg.pose.pose.orientation.x = t_imu.qx;
+                odom_msg.pose.pose.orientation.y = t_imu.qy;
+                odom_msg.pose.pose.orientation.z = t_imu.qz;
+                odom_msg.pose.pose.orientation.w = t_imu.qw;
+            } else {
+                odom_msg.pose.pose.orientation.x = 0.0;
+                odom_msg.pose.pose.orientation.y = 0.0;
+                odom_msg.pose.pose.orientation.z = std::sin(odom_yaw_ / 2.0);
+                odom_msg.pose.pose.orientation.w = std::cos(odom_yaw_ / 2.0);
+            }
+
+            const double vx_source = std::isnan(t_imu.vx) ? vx : static_cast<double>(t_imu.vx);
+            const double wz_source = std::isnan(t_imu.wz) ? wz : static_cast<double>(t_imu.wz);
+
+            odom_msg.twist.twist.linear.x = vx_source;
+            odom_msg.twist.twist.linear.y = 0.0;
+            odom_msg.twist.twist.linear.z = 0.0;
+            odom_msg.twist.twist.angular.x = 0.0;
+            odom_msg.twist.twist.angular.y = 0.0;
+            odom_msg.twist.twist.angular.z = wz_source;
+
+            odom_msg.pose.covariance[0] = 1e-3;
+            odom_msg.pose.covariance[7] = 1e-3;
+            odom_msg.pose.covariance[14] = 1e-3;
+            odom_msg.twist.covariance[0] = 1e-3;
+            odom_msg.twist.covariance[7] = 1e-3;
+            odom_msg.twist.covariance[35] = 1e-3;
+
+            odom_pub_->publish(odom_msg);
         }
 
         // Publish GPS data if available
-            if (gps_pub_ && pub_node_) {
-                sensor_msgs::msg::NavSatFix gps_msg;
-                gps_msg.header.stamp = time;
-                gps_msg.header.frame_id = "gps_link";
-                GPSTelemetry t_gps;
-                {
-                    std::lock_guard<std::mutex> lk(this->telemetry_mutex_);
-                    t_gps = gps.getTelemetry();
+        if (gps_pub_ && pub_node_) {
+            sensor_msgs::msg::NavSatFix gps_msg;
+            gps_msg.header.stamp = now;
+            gps_msg.header.frame_id = "gps";
+            GPSTelemetry t_gps;
+            {
+                std::lock_guard<std::mutex> lk(this->telemetry_mutex_);
+                t_gps = gps.getTelemetry();
+            }
+            if (!std::isnan(t_gps.lat) && !std::isnan(t_gps.lng)) {
+                gps_msg.latitude = t_gps.lat;
+                gps_msg.longitude = t_gps.lng;
+                gps_msg.position_covariance_type = sensor_msgs::msg::NavSatFix::COVARIANCE_TYPE_UNKNOWN;
+            }
+            gps_pub_->publish(gps_msg);
+        }
+
+        if (battery_pub_) {
+            std::vector<float> cell_voltages;
+            cell_voltages.reserve(4);
+            auto consider_voltage = [&](float v) {
+                if (std::isfinite(v) && std::fabs(v) > 1e-3) {
+                    cell_voltages.emplace_back(v);
                 }
-                if (!std::isnan(t_gps.lat) && !std::isnan(t_gps.lng)) {
-                    gps_msg.latitude = t_gps.lat;
-                    gps_msg.longitude = t_gps.lng;
-                    gps_msg.position_covariance_type = sensor_msgs::msg::NavSatFix::COVARIANCE_TYPE_UNKNOWN;
+            };
+            consider_voltage(backleftWheel.telemetry.volt);
+            consider_voltage(backrightWheel.telemetry.volt);
+            consider_voltage(frontleftWheel.telemetry.volt);
+            consider_voltage(frontrightWheel.telemetry.volt);
+
+            sensor_msgs::msg::BatteryState battery_msg;
+            battery_msg.header.stamp = now;
+            battery_msg.header.frame_id = "base_link";
+            battery_msg.present = !cell_voltages.empty();
+            if (!cell_voltages.empty()) {
+                double sum = 0.0;
+                for (const auto &v : cell_voltages) {
+                    sum += static_cast<double>(v);
+                    battery_msg.cell_voltage.push_back(v);
                 }
-                gps_pub_->publish(gps_msg);
+                battery_msg.voltage = sum / static_cast<double>(cell_voltages.size());
+            } else {
+                battery_msg.voltage = 0.0;
+            }
+            battery_msg.percentage = std::numeric_limits<float>::quiet_NaN();
+            battery_msg.current = std::numeric_limits<float>::quiet_NaN();
+            battery_msg.charge = std::numeric_limits<float>::quiet_NaN();
+            battery_msg.capacity = std::numeric_limits<float>::quiet_NaN();
+            battery_msg.design_capacity = std::numeric_limits<float>::quiet_NaN();
+            battery_pub_->publish(battery_msg);
         }
 
         return hardware_interface::return_type::OK;
     }
 
-    hardware_interface::return_type AsinusHardwareInterface::write(
-    const rclcpp::Time &, const rclcpp::Duration &)
+    hardware_interface::return_type AsinusHardwareInterface::write(const rclcpp::Time &, const rclcpp::Duration & period)
     {
        
 
@@ -411,18 +647,18 @@ namespace asinus_hardware_interface
             return hardware_interface::return_type::ERROR;
         }
         //std::cerr<<"debug commands: BL="<<backleftWheel.command<<" BR="<<backrightWheel.command<<std::endl;
-        // --- Motores traseiros ---
-        int cmd_bl = static_cast<int>(std::round(backleftWheel.command*100));
-        int cmd_br = static_cast<int>(std::round(-backrightWheel.command*100));
+       
+        int cmd_bl = static_cast<int>(std::round(backleftWheel.command*10));
+        int cmd_br = static_cast<int>(std::round(backrightWheel.command*10));
 
         std::string msg1 = "h|" + std::to_string(backleftWheel.telemetry.id) +
                         "|" + std::to_string(cmd_bl) + "|1\n";
 
         std::string msg2 = "h|" + std::to_string(backrightWheel.telemetry.id) +
                         "|" + std::to_string(cmd_br) + "|1\n";
-
-        //std::cerr<<"bl command: "<<backleftWheel.command*100<<", br command: "<<backrightWheel.command*100<<std::endl;
-        //std::cerr<<"fl command: "<<frontleftWheel.command*100<<", fr command: "<<frontrightWheel.command*100<<std::endl;
+        //std::cerr<<"bl raw command: "<<backleftWheel.command<<", br raw command: "<<backrightWheel.command<<std::endl;
+        std::cerr<<"bl command: "<<cmd_bl<<", br command: "<<cmd_br<<std::endl;
+        std::cerr<<"fl command: "<<frontleftWheel.command*100<<", fr command: "<<frontrightWheel.command*100<<std::endl;
         
         //std::cerr<<"debug msg1: "<<msg1;
         //std::cerr<<"debug msg2: "<<msg2;
@@ -431,9 +667,10 @@ namespace asinus_hardware_interface
 
         // --- Se for modelo 4x4 ---
         if (hardwareConfig.typeName == "asinus_four_wheel") {
-            int cmd_fl = static_cast<int>(std::round(frontleftWheel.command*100));
-            int cmd_fr = static_cast<int>(std::round(frontrightWheel.command*100));
+            
 
+            int cmd_fl = static_cast<int>(std::round(frontleftWheel.command*36));
+            int cmd_fr = static_cast<int>(std::round(-frontrightWheel.command*36));
 
             std::string msg3 = "h|" +
                             std::to_string(frontrightWheel.telemetry.id) + "|" +
@@ -449,6 +686,19 @@ namespace asinus_hardware_interface
 
         return hardware_interface::return_type::OK;
         }
+
+    double AsinusHardwareInterface::normalize_angle(double angle)
+    {
+        constexpr double pi = 3.14159265358979323846;
+        constexpr double two_pi = 2.0 * pi;
+        while (angle > pi) {
+            angle -= two_pi;
+        }
+        while (angle < -pi) {
+            angle += two_pi;
+        }
+        return angle;
+    }
 
     } // namespace asinus_hardware_interface
 

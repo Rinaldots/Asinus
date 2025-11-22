@@ -26,12 +26,6 @@ void HoverSetupEsp32(O& oSerial, IB iBaud, IP gpio_RX, IP gpio_TX)
   oSerial.begin(iBaud, SERIAL_8N1, gpio_RX, gpio_TX);
 }
 
-template <typename O, typename IB>
-void HoverSetupArduino(O& oSerial, IB iBaud)
-{
-  oSerial.begin(iBaud);
-}
-
 inline uint16_t CalcCRC(uint8_t *ptr, int count)
 {
   uint16_t  crc;
@@ -91,6 +85,16 @@ inline uint16_t CalcCRC(uint8_t *ptr, int count)
      uint16_t checksum;
   } SerialServer2HoverMaster;
 
+  typedef struct __attribute__((packed, aligned(1))) {  //
+    uint8_t  cStart = '/';
+    uint8_t  iDataType = 2;    //  
+    uint8_t  iSlave;       //  contains the slave id this message is intended for
+      float fBattFull;
+      float fBattEmpty;
+      uint8_t iDriveMode; // MM32 0=COM_VOLTAGE, 1=COM_SPEED, 2=SINE_VOLTAGE, 3=SINE_SPEED
+    uint8_t iSlaveNew; // if >= 0 contains the new slave id saved in eeprom
+    uint16_t checksum;
+  } SerialServer2HoverConfig;
 
   template <typename O,typename D> void HoverSendData(O& oSerial, D& oData)
   {
@@ -98,6 +102,20 @@ inline uint16_t CalcCRC(uint8_t *ptr, int count)
     oSerial.write((uint8_t*) &oData, sizeof(oData));
     //DEBUGN(oData.iSlave, sizeof(oData));
   }
+
+  template <typename O> void HoverSendConfig(O& oSerial, uint8_t iSlave, uint8_t iDriveMode, float fBattFull=0.0, float fBattEmpty=-100.0)
+  {
+    //DEBUGT("iSteer",iSteer
+    SerialServer2HoverConfig oData;
+    oData.iSlave    = iSlave;
+    oData.fBattFull = fBattFull;
+    oData.fBattEmpty = fBattEmpty;
+    oData.iDriveMode = iDriveMode;
+    oData.iSlaveNew = -1; // no change
+    oData.checksum = CalcCRC((uint8_t*)&oData, sizeof(SerialServer2HoverConfig)-2); // first bytes except crc
+    oSerial.write((uint8_t*) &oData, sizeof(SerialServer2HoverConfig));
+  }
+
 
   template <typename O,typename I> void HoverSend(O& oSerial, uint8_t iSlave, I iSpeed, uint8_t  wState=32)
   {
@@ -127,84 +145,6 @@ inline uint16_t CalcCRC(uint8_t *ptr, int count)
     asinusManager.updateMotorByIndex(oData.iSlave, oData.iOdom, oData.iSpeed, oData.iVolt, millis());
   } 
 
-#else
-
-  typedef struct __attribute__((packed, aligned(1))) {
-     uint16_t cStart = START_FRAME;    //  = '/';
-     int16_t iSpeedL;   // 100* km/h
-     int16_t iSpeedR;   // 100* km/h
-     uint16_t iVolt;    // 100* V
-     int16_t iAmpL;   // 100* A
-     int16_t iAmpR;   // 100* A
-     int32_t iOdomL;    // hall steps
-     int32_t iOdomR;    // hall steps
-     uint16_t checksum;
-  } SerialHover2Server;
-
-  //typedef struct{   // new version
-  //   uint16_t cStart = START_FRAME;   // new version
-  typedef struct __attribute__((packed, aligned(1))) {  // old version
-     uint8_t cStart = '/';                              // old version
-     int16_t  iSpeed = 0;
-     int16_t  iSteer = 0;
-     uint8_t  wStateMaster = 0;   // 1=ledGreen, 2=ledOrange, 4=ledRed, 8=ledUp, 16=ledDown   , 32=Battery3Led, 64=Disable, 128=ShutOff
-     uint8_t  wStateSlave = 0;   // 1=ledGreen, 2=ledOrange, 4=ledRed, 8=ledUp, 16=ledDown   , 32=Battery3Led, 64=Disable, 128=ShutOff
-     uint16_t checksum;
-  } SerialServer2Hover;
-
-  template <typename O,typename I> void HoverSend(O& oSerial, I iSteer, I iSpeed,uint8_t  wStateMaster=32, uint8_t  wStateSlave=0)
-  {
-    //DEBUGT("iSteer",iSteer);DEBUGN("iSpeed",iSpeed);
-    SerialServer2Hover oData;
-    oData.iSpeed    = (int16_t)iSpeed;
-    oData.iSteer    = (int16_t)iSteer;
-    oData.wStateMaster  = wStateMaster;
-    oData.wStateSlave   = wStateSlave;
-    oData.checksum = CalcCRC((uint8_t*)&oData, sizeof(SerialServer2Hover)-2); // first bytes except crc
-    oSerial.write((uint8_t*) &oData, sizeof(SerialServer2Hover));
-    //DebugOut((uint8_t*) &oData, sizeof(oData));
-  }
-
-  template <typename O,typename I> void HoverSendLR(O& oSerial, I iSpeedLeft, I iSpeedRight) // -1000 .. +1000
-  {
-    // speed coeff in config.h must be 1.0 : (DEFAULT_)SPEED_COEFFICIENT   16384
-    // steer coeff in config.h must be 0.5 : (DEFAULT_)STEER_COEFFICIENT   8192
-    HoverSend(oSerial,iSpeedRight - iSpeedLeft,(iSpeedLeft + iSpeedRight)/2);
-  }
-
-  inline void HoverLog(SerialHover2Server& oData)
-  {
-    DEBUGT("iOdomL",oData.iOdomL);
-    DEBUGT("\tiOdomR",oData.iOdomR);
-    DEBUGT("\tiSpeedL",(float)oData.iSpeedL/100.0);
-    DEBUGT(" iSpeedR",(float)oData.iSpeedR/100.0);
-    DEBUGT("\tiAmpL",(float)oData.iAmpL/100.0);
-    DEBUGT(" iAmpR",(float)oData.iAmpR/100.0);
-    DEBUGN("\tiVolt",(float)oData.iVolt/100.0);
-  }
-
-  inline void HoverDebug(SerialHover2Server& oData)
-  {
-    DEBUGTX("0",oData.iVolt);
-    DEBUGTB("1",oData.iAmpL);
-    DEBUGTB("2",oData.iAmpR);
-    DEBUGTB("3",oData.iSpeedL);
-    DEBUGN("4",oData.iSpeedR);
-  }
-
-  inline void HoverDebug2(SerialHover2Server& oData)
-  {
-    DEBUGT("0",oData.iVolt);
-    DEBUGT("1",oData.iAmpL);
-    DEBUGT("2",oData.iAmpR);
-    DEBUGT("3",oData.iSpeedL);
-    DEBUGT("4",oData.iSpeedR);
-    DEBUGT("5",oData.iOdomL);
-    DEBUGN("6",oData.iOdomR);
-  }
-
-#endif
-
 
 inline void DebugOut(uint8_t aBuffer[], uint8_t iSize)
 {
@@ -216,13 +156,6 @@ inline void DebugOut(uint8_t aBuffer[], uint8_t iSize)
   Serial.println();
 }
 
-#ifdef DEBUG_RX
-  // Declare the variable as extern to avoid multiple definitions when this
-  // header is included from multiple translation units. A single definition
-  // is provided in MotorManager.cpp.
-  extern unsigned long iLastRx;
-#endif
-
 //boolean Receive(Serial& oSerial, SerialFeedback& Feedback)
 template <typename O,typename OF> boolean Receive(O& oSerial, OF& Feedback)
 {
@@ -232,12 +165,6 @@ template <typename O,typename OF> boolean Receive(O& oSerial, OF& Feedback)
   {
     byte c = oSerial.read();  // Read the incoming byte
     iTooMuch--;
-
-    #ifdef DEBUG_RX
-      //if (millis() > iLastRx + 50)  Serial.println();
-      Serial.print((c < 16) ? " 0" : " ");Serial.print(c,HEX);
-      iLastRx = millis();
-    #endif
 
     if (bFirst) // test first START byte
     {
@@ -271,12 +198,6 @@ template <typename O,typename OF> boolean Receive(O& oSerial, OF& Feedback)
             #endif
             return true;
         }
-        #ifdef DEBUG_RX
-          Serial.print(tmpFeedback.checksum, HEX);
-          Serial.print(" != ");
-          Serial.print(checksum,HEX);
-          Serial.println(" :-(");
-        #endif
         return false;
       }
       if (c != (byte)START_FRAME) //if (c != 0xCD)
@@ -285,5 +206,7 @@ template <typename O,typename OF> boolean Receive(O& oSerial, OF& Feedback)
   }
   return false;
 }
+
+#endif // REMOTE_UARTBUS
 
 #endif // HOVERSERIAL_H
