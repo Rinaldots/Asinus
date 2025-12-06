@@ -657,8 +657,8 @@ namespace asinus_hardware_interface
         std::string msg2 = "h|" + std::to_string(backrightWheel.telemetry.id) +
                         "|" + std::to_string(cmd_br) + "|1\n";
         //std::cerr<<"bl raw command: "<<backleftWheel.command<<", br raw command: "<<backrightWheel.command<<std::endl;
-        std::cerr<<"bl command: "<<cmd_bl<<", br command: "<<cmd_br<<std::endl;
-        std::cerr<<"fl command: "<<frontleftWheel.command*100<<", fr command: "<<frontrightWheel.command*100<<std::endl;
+        //std::cerr<<"bl command: "<<cmd_bl<<", br command: "<<cmd_br<<std::endl;
+        //std::cerr<<"fl command: "<<frontleftWheel.command*100<<", fr command: "<<frontrightWheel.command*100<<std::endl;
         
         //std::cerr<<"debug msg1: "<<msg1;
         //std::cerr<<"debug msg2: "<<msg2;
