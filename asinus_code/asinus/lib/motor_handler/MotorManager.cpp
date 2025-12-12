@@ -11,13 +11,8 @@ unsigned long iLastRx = 0;
 #endif
 
 // Constructor
-MotorManager::MotorManager(const SerialPortConfig& port1,
-                                                     const SerialPortConfig& port2,
-                                                     const SerialPortConfig& port3,
-                                                     const SerialPortConfig& port4)
-    : m_port1(port1.port), m_port2(port2.port), m_port3(port3.port), m_port4(port4.port),
-        m_port1Begin(port1.beginFn), m_port2Begin(port2.beginFn), m_port3Begin(port3.beginFn), m_port4Begin(port4.beginFn),
-        m_nextSendTime(0), m_lastFeedbackTime(0), m_motorOffset(0),
+MotorManager::MotorManager(HardwareSerial& port1, HardwareSerial& port2)
+  : m_port1(port1), m_port2(port2), m_nextSendTime(0), m_lastFeedbackTime(0), m_motorOffset(0),
     m_slaveidin(0), m_iSpeed(0), m_ispeedin(0), m_istatein(0),
     m_iLast(0), m_iNext(0), m_iTimeNextState(10), m_wState(1), m_iSendId(0), m_count(0), m_command("")
 {
@@ -30,16 +25,15 @@ MotorManager::MotorManager(const SerialPortConfig& port1,
 }
 
 // Initialize serial ports used for motors
-void MotorManager::begin(long baud, int rx1, int tx1, int rx2, int tx2, int rx3, int tx3, int rx4, int tx4)
+void MotorManager::begin(long baud, int rx1, int tx1, int rx2, int tx2)
 {
-    if (m_port1Begin) m_port1Begin(m_port1, baud, rx1, tx1);
-    if (m_port2Begin) m_port2Begin(m_port2, baud, rx2, tx2);
-    if (m_port3Begin) m_port3Begin(m_port3, baud, rx3, tx3);
-    if (m_port4Begin) m_port4Begin(m_port4, baud, rx4, tx4);
+    // Use ESP32 helper from hoverserial.h to start serial with custom pins
+    HoverSetupEsp32(m_port1, baud, rx1, tx1);
+    HoverSetupEsp32(m_port2, baud, rx2, tx2);
     m_nextSendTime = millis() + SEND_MILLIS;
     delay(1000); // wait for motors to initialize
-    
-    //HoverSendConfig(m_port3, (uint8_t)2, (uint8_t)0, (float)65535.0, (float)65535.0);
+    //HoverSendConfig(m_port1, (uint8_t)1, (uint8_t)3);
+    //HoverSendConfig(m_port2, (uint8_t)2, (uint8_t)0, (float)65535.0, (float)65535.0);
 }
 
 // Main update loop — lightweight orchestration
@@ -116,22 +110,9 @@ void MotorManager::sendMotorCommands()
     }
 
     for (size_t i = 0; i < motor_count_port2; i++) {
-        int motorId = motors_port2[i];
+        int motorId = motors_port2[i];     
         int speed = m_motor_speed[motorId - m_motorOffset];
         HoverSend(m_port2, (uint8_t)motorId, speed, (uint8_t)32);
-    }
-
-    for (size_t i = 0; i < motor_count_port3; i++) {
-        int motorId = motors_port3[i];
-        m_motor_speed[motorId - m_motorOffset] = -m_motor_speed[motorId - m_motorOffset];
-        int speed = m_motor_speed[motorId - m_motorOffset];
-        HoverSend(m_port3, (uint8_t)motorId, speed, (uint8_t)32);
-    }
-
-    for (size_t i = 0; i < motor_count_port4; i++) {
-        int motorId = motors_port4[i];
-        int speed = m_motor_speed[motorId - m_motorOffset];
-        HoverSend(m_port4, (uint8_t)motorId, speed, (uint8_t)32);
     }
     m_iNext = iNow + SEND_MILLIS / 2;
 }
@@ -140,8 +121,7 @@ void MotorManager::receiveMotorFeedback()
 {
     unsigned long iNow = millis();
     SerialHover2Server fb;
-
-    bool bReceived1 = false, bReceived2 = false, bReceived3 = false, bReceived4 = false;
+    bool bReceived1 = false, bReceived2 = false;
 
     while ((bReceived1 = Receive(m_port1, fb))) {
         fb.iSpeed = -fb.iSpeed;
@@ -154,19 +134,6 @@ void MotorManager::receiveMotorFeedback()
     while ((bReceived2 = Receive(m_port2, fb))) {
         asinusManager.updateMotorByIndex(1, fb.iSpeed, fb.iOdom, fb.iVolt, iNow);
         m_feedback2 = fb;
-        m_iLast = iNow;
-    }
-
-    while ((bReceived3 = Receive(m_port3, fb))) {
-        fb.iSpeed = -fb.iSpeed;
-        fb.iOdom = -fb.iOdom;
-        asinusManager.updateMotorByIndex(2, fb.iSpeed, fb.iOdom, fb.iVolt, iNow);
-        m_feedback3 = fb;
-        m_iLast = iNow;
-    }
-    while ((bReceived4 = Receive(m_port4, fb))) {
-        asinusManager.updateMotorByIndex(3, fb.iSpeed, fb.iOdom, fb.iVolt, iNow);
-        m_feedback4 = fb;
         m_iLast = iNow;
     }
 }
