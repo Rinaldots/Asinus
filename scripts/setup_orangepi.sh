@@ -67,7 +67,8 @@ sudo apt-get install -y \
   ros-"$ROS_DISTRO"-nmea-navsat-driver \
   ros-"$ROS_DISTRO"-robot-localization \
   ros-"$ROS_DISTRO"-joy \
-  ros-"$ROS_DISTRO"-teleop-twist-joy
+  ros-"$ROS_DISTRO"-teleop-twist-joy \
+  libboost-system-dev
 
 # ---------- 4. rosdep ----------
 log "Inicializando rosdep"
