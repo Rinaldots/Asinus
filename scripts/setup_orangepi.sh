@@ -12,7 +12,9 @@
 #   WS=$HOME/asinus_ws       pasta do workspace
 #   TS_AUTHKEY=tskey-...      autentica o Tailscale sem abrir navegador
 # ---------------------------------------------------------------------------
-set -euo pipefail
+# NB: sem 'set -u' de proposito - os setup.bash do ROS referenciam variaveis
+# nao definidas (ex.: AMENT_TRACE_SETUP_FILES) e quebrariam com nounset.
+set -eo pipefail
 
 ROS_DISTRO="${ROS_DISTRO:-humble}"
 WS="${WS:-$HOME/asinus_ws}"
@@ -90,7 +92,11 @@ rosdep install --from-paths "$WS/src" --ignore-src -r -y --skip-keys "$SKIP_KEYS
 # ---------- 7. Build (nucleo do robo real) ----------
 log "Compilando: $BUILD_PKGS"
 cd "$WS"
-colcon build --symlink-install --packages-select $BUILD_PKGS
+if colcon build --symlink-install --packages-select $BUILD_PKGS; then
+  log "Build OK"
+else
+  log "AVISO: build falhou (veja os erros acima). Continuando o resto do setup..."
+fi
 
 # ---------- 8. Sources no ~/.bashrc ----------
 log "Configurando ~/.bashrc"
