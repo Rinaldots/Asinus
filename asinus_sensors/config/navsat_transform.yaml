@@ -1,0 +1,22 @@
+# Parametros do navsat_transform_node (robot_localization).
+# Converte /fix (GPS) para o frame do mundo usando o heading da IMU (/imu).
+# Ponto de partida - precisa de ajuste em campo (principalmente a declinacao magnetica).
+navsat_transform:
+  ros__parameters:
+    frequency: 30.0
+    delay: 3.0
+
+    # Declinacao magnetica do teu local, em RADIANOS. Natal/RN ~ -0.39 rad (~ -22 graus).
+    # Confirme o valor do ano atual em https://www.magnetic-declination.com
+    magnetic_declination_radians: -0.39
+
+    # Offset de yaw da IMU: 0.0 se, com world_frame=enu, o yaw=0 aponta para o Leste.
+    yaw_offset: 0.0
+
+    zero_altitude: true
+    broadcast_utm_transform: true
+    publish_filtered_gps: true
+
+    # false = usa o yaw da IMU (ICM-20948 + madgwick) como heading. Ideal outdoor.
+    use_odometry_yaw: false
+    wait_for_datum: false
