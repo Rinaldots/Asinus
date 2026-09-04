@@ -1,0 +1,8 @@
+# Projeto ROS 2 desenvolvido no Windows mas executado no Linux (Orange Pi 3B).
+# Forca LF nos arquivos que rodam no Linux para evitar erro de "bad interpreter" (\r).
+* text=auto eol=lf
+*.sh  text eol=lf
+*.py  text eol=lf
+*.bash text eol=lf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
