@@ -60,7 +60,7 @@ class Icm20948Node(Node):
         super().__init__('icm20948')
         self.declare_parameter('i2c_bus', 2)
         self.declare_parameter('i2c_address', 0x69)   # AD0=1 (teu codigo usa ICM_AD0_VAL 1); 0x68 se AD0=0
-        self.declare_parameter('frame_id', 'imu_link')
+        self.declare_parameter('frame_id', 'imu')   # link do URDF chama-se "imu"
         self.declare_parameter('frequency', 100.0)
 
         self.bus_num = int(self.get_parameter('i2c_bus').value)

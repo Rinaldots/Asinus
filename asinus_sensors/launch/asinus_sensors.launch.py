@@ -1,12 +1,12 @@
 # Stack de sensores + fusao rodando DIRETO no Orange Pi 3B.
 #   ICM-20948 (I2C bus 2, pinos 3/5)  -> imu/data_raw + imu/mag
 #   imu_filter_madgwick               -> imu/data  (remapeado p/ /imu, que o ekf.yaml espera)
-#   GPS NEO-6M (uart3, pinos 27/28)   -> /fix
+#   GPS u-blox M8 (UART2 = ttyS2, pinos 8/10)  -> /fix
 #   [use_fusion:=true] EKF + navsat_transform  p/ fundir odom + IMU + GPS
 #
 # Uso:
 #   ros2 launch asinus_sensors asinus_sensors.launch.py
-#   ros2 launch asinus_sensors asinus_sensors.launch.py gps_port:=/dev/ttyS3 use_fusion:=true
+#   ros2 launch asinus_sensors asinus_sensors.launch.py gps_port:=/dev/ttyS2 use_fusion:=true
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
@@ -30,8 +30,8 @@ def generate_launch_description():
     use_fusion = LaunchConfiguration('use_fusion')
 
     return LaunchDescription([
-        DeclareLaunchArgument('gps_port', default_value='/dev/ttyS3',
-                              description='UART do GPS (uart3 = pinos 27/28). Use /dev/ttyUSB0 se for USB-TTL.'),
+        DeclareLaunchArgument('gps_port', default_value='/dev/ttyS2',
+                              description='UART do GPS = UART2 (ttyS2, pinos 8/10). Requer serial-getty@ttyS2 desativado. USB-TTL: /dev/ttyUSB0.'),
         DeclareLaunchArgument('gps_baud', default_value='9600'),
         DeclareLaunchArgument('use_fusion', default_value='false',
                               description="Se 'true', sobe tambem EKF + navsat_transform"),
@@ -42,9 +42,9 @@ def generate_launch_description():
             executable='icm20948_node',
             name='icm20948',
             parameters=[{
-                'i2c_bus': 2,
+                'i2c_bus': 2,          # I2C2 do RK3566 (pinos 3/5), overlay i2c2-m1. CONFIRMAR com `ls /dev/i2c-*` apos reboot
                 'i2c_address': 0x69,
-                'frame_id': 'imu_link',
+                'frame_id': 'imu',     # casa com o <link name="imu"> do URDF
                 'frequency': 100.0,
             }],
             output='screen',
